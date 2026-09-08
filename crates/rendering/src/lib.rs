@@ -3024,14 +3024,22 @@ impl ProjectUniforms {
         project: &ProjectConfiguration,
         resolution_base: XY<u32>,
     ) -> (u32, u32) {
-        let (base_width, base_height) = Self::get_base_size(options, project);
+        // Rounded layout dimensions must not change the requested export aspect ratio.
+        let (base_width, base_height) = match project.aspect_ratio {
+            Some(AspectRatio::Wide) => (16, 9),
+            Some(AspectRatio::Vertical) => (9, 16),
+            Some(AspectRatio::Square) => (1, 1),
+            Some(AspectRatio::Classic) => (4, 3),
+            Some(AspectRatio::Tall) => (3, 4),
+            None => Self::get_base_size(options, project),
+        };
 
-        let width_scale = resolution_base.x as f32 / base_width as f32;
-        let height_scale = resolution_base.y as f32 / base_height as f32;
+        let width_scale = resolution_base.x as f64 / base_width as f64;
+        let height_scale = resolution_base.y as f64 / base_height as f64;
         let scale = width_scale.min(height_scale);
 
-        let scaled_width = ((base_width as f32 * scale) as u32 + 3) & !3;
-        let scaled_height = ((base_height as f32 * scale) as u32 + 1) & !1;
+        let scaled_width = ((base_width as f64 * scale) as u32 + 3) & !3;
+        let scaled_height = ((base_height as f64 * scale) as u32 + 1) & !1;
         (scaled_width, scaled_height)
     }
 
@@ -4664,6 +4672,27 @@ mod tests {
         let bounds = inset_crop_bounds([0.0, 0.0, 1.0, 1.0], [1.0, 1.0], 2.0);
 
         assert_eq!(bounds, [0.0, 0.0, 1.0, 1.0]);
+    }
+
+    #[test]
+    fn fixed_aspect_4k_export_ignores_rounded_layout_dimensions() {
+        let options = render_options(320, 240);
+        for padding in [0.0, 20.0, 50.0] {
+            let mut project = ProjectConfiguration {
+                aspect_ratio: Some(AspectRatio::Wide),
+                ..ProjectConfiguration::default()
+            };
+            project.background.padding = padding;
+            assert_eq!(
+                ProjectUniforms::get_output_size(&options, &project, XY::new(3840, 2160)),
+                (3840, 2160)
+            );
+            project.aspect_ratio = Some(AspectRatio::Vertical);
+            assert_eq!(
+                ProjectUniforms::get_output_size(&options, &project, XY::new(2160, 3840)),
+                (2160, 3840)
+            );
+        }
     }
 
     #[test]

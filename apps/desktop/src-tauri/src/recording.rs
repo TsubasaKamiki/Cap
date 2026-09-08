@@ -1538,9 +1538,9 @@ pub fn format_project_name<'a>(
 
     // Get recording mode information
     let (recording_mode, mode) = match recording_mode {
-        RecordingMode::Studio => ("Studio", "studio"),
-        RecordingMode::Instant => ("Instant", "instant"),
-        RecordingMode::Screenshot => ("Screenshot", "screenshot"),
+        RecordingMode::Studio => ("工作室", "studio"),
+        RecordingMode::Instant => ("即时", "instant"),
+        RecordingMode::Screenshot => ("截图", "screenshot"),
     };
 
     let result = AC
@@ -1597,6 +1597,11 @@ pub async fn start_recording(
     state_mtx: MutableState<'_, App>,
     inputs: StartRecordingInputs,
 ) -> Result<RecordingAction, String> {
+    let mut inputs = inputs;
+    if crate::LOCAL_ONLY {
+        inputs.mode = RecordingMode::Studio;
+        inputs.organization_id = None;
+    }
     #[cfg(target_os = "linux")]
     if inputs.mode != RecordingMode::Instant && linux_instant::current(&app).is_some() {
         return Err("Finish the pending Instant cleanup before recording".into());
@@ -1759,11 +1764,7 @@ async fn start_recording_prepared(
         general_settings
             .and_then(|s| s.default_project_name_template.clone())
             .as_deref(),
-        inputs
-            .capture_target
-            .title()
-            .as_deref()
-            .unwrap_or("Unknown"),
+        inputs.capture_target.title().as_deref().unwrap_or("未知"),
         inputs.capture_target.kind_str(),
         inputs.mode,
         None,
@@ -2196,7 +2197,13 @@ async fn start_recording_prepared(
                                     recording_dir.clone(),
                                     inputs.capture_target.clone(),
                                 )
-                                .with_system_audio(inputs.capture_system_audio),
+                                .with_system_audio(inputs.capture_system_audio)
+                                .with_capture_resolution(
+                                    general_settings
+                                        .as_ref()
+                                        .map(|settings| settings.recording_resolution)
+                                        .unwrap_or(2160),
+                                ),
                                 camera_feed.is_some(),
                                 None,
                             );
@@ -3911,7 +3918,7 @@ pub async fn take_screenshot(
         general_settings
             .and_then(|s| s.default_project_name_template.clone())
             .as_deref(),
-        target.title().as_deref().unwrap_or("Unknown"),
+        target.title().as_deref().unwrap_or("未知"),
         target.kind_str(),
         RecordingMode::Screenshot,
         None,

@@ -1,5 +1,6 @@
 import { OpenPanel } from "@openpanel/web";
 import { Store } from "@tauri-apps/plugin-store";
+import { LOCAL_BUILD } from "./local-build";
 
 const clientId = import.meta.env.VITE_OPENPANEL_CLIENT_ID as string | undefined;
 const apiUrl = import.meta.env.VITE_OPENPANEL_API_URL as string | undefined;
@@ -27,7 +28,7 @@ function normalizeApiUrl(url: string | undefined): string | undefined {
 
 let openpanel: OpenPanel | undefined;
 
-if (clientId && apiUrl) {
+if (!LOCAL_BUILD && clientId && apiUrl) {
 	try {
 		openpanel = new OpenPanel({
 			clientId,

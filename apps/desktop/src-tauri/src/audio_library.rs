@@ -21,10 +21,10 @@ const AUDIO_LIBRARY: &[(&str, &str)] = &[
         "Empty Streets",
     ),
     ("lofi-study-calm-peaceful-chill-hop-fassounds", "Study"),
-    ("lofi-cinematic-pulsebox", "Cinematic"),
+    ("lofi-cinematic-pulsebox", "电影"),
     ("lofi-hip-hop-leberch", "Hip Hop"),
     ("cassette-retrositive", "Cassette"),
-    ("lofi-smooth-pulsebox", "Smooth"),
+    ("lofi-smooth-pulsebox", "平滑"),
 ];
 
 const AUDIO_LIBRARY_CATEGORY: &str = "Lo-Fi";
@@ -136,7 +136,7 @@ pub async fn import_audio_track_file(
     let display_name = source
         .file_stem()
         .and_then(|stem| stem.to_str())
-        .unwrap_or("Audio")
+        .unwrap_or("音频")
         .to_string();
 
     let project_path = editor_instance.project_path.clone();

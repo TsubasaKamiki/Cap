@@ -198,6 +198,11 @@ impl<T: Manager<R> + Emitter<R>, R: Runtime> ManagerExt<R> for T {
         path: impl Into<String>,
         build: impl FnOnce(&reqwest::Client, String) -> reqwest::RequestBuilder,
     ) -> Result<reqwest::Response, AuthedApiError> {
+        if crate::LOCAL_ONLY {
+            return Err(AuthedApiError::Other(
+                "本地版不提供云端上传，请导出到文件。".into(),
+            ));
+        }
         let Some(auth) = AuthStore::get(self.app_handle()).map_err(AuthedApiError::AuthStore)?
         else {
             debug!("Skipping authenticated API request because user is not logged in");

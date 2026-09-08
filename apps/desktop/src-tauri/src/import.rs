@@ -1944,7 +1944,7 @@ pub async fn start_image_import(app: AppHandle, source_path: PathBuf) -> Result<
             Ok((width, height, rgba.into_raw()))
         })
         .await
-        .map_err(|e| format!("Failed to import image: {e}"))??;
+        .map_err(|e| format!("无法导入图片：{e}"))??;
 
     let screenshots_dir = app
         .path()

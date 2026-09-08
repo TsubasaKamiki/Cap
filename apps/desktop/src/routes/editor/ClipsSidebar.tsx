@@ -503,7 +503,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 	const importRecordingPath = async (sourcePath: string) => {
 		if (importing()) return;
 		setImporting(true);
-		const toastId = toast.loading("Importing clip…");
+		const toastId = toast.loading("正在导入片段…");
 		try {
 			if (editorState.playing) {
 				await commands.stopPlayback();
@@ -511,20 +511,20 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 			}
 			await commands.setProjectConfig(serializeProjectConfiguration(project));
 			const count = await commands.addExistingRecordingToEditor(sourcePath);
-			toast.success(count === 1 ? "Clip imported" : `${count} clips imported`, {
+			toast.success(count === 1 ? "片段已导入" : `已导入 ${count} 个片段`, {
 				id: toastId,
 			});
 			window.location.reload();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
-			toast.error(`Failed to import clip: ${message}`, { id: toastId });
+			toast.error(`无法导入片段：${message}`, { id: toastId });
 			setImporting(false);
 		}
 	};
 
 	const pickMp4 = async () => {
 		const path = await open({
-			filters: [{ name: "MP4 Video", extensions: ["mp4"] }],
+			filters: [{ name: "MP4 视频", extensions: ["mp4"] }],
 			multiple: false,
 		});
 		if (typeof path === "string") await importRecordingPath(path);
@@ -543,11 +543,11 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 		const menu = await Menu.new({
 			items: [
 				await MenuItem.new({
-					text: "Existing recording",
+					text: "已有录制",
 					action: () => void pickCapRecording(),
 				}),
 				await MenuItem.new({
-					text: "MP4 Video…",
+					text: "MP4 视频…",
 					action: () => void pickMp4(),
 				}),
 			],
@@ -560,7 +560,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 	);
 	const recordedClipCount = () => editorInstance.recordings.segments.length;
 
-	const clipLabel = (index: number) => `Clip ${index + 1}`;
+	const clipLabel = (index: number) => `片段 ${index + 1}`;
 
 	const segmentClipIndex = (segment: EditorTimelineSegment, index: number) =>
 		segment.recordingSegment ??
@@ -583,7 +583,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 		const splitNumber = segmentSplitNumber(segment, index);
 		return splitNumber === 1
 			? clipLabel(segmentClipIndex(segment, index))
-			: `Split ${splitNumber - 1}`;
+			: `分割 ${splitNumber - 1}`;
 	};
 
 	const displayName = (segment: EditorTimelineSegment, index: number) => {
@@ -801,7 +801,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 				class="flex flex-none gap-2 items-center px-4 w-full h-16 text-sm font-medium border-b transition-colors text-gray-12 border-gray-3 hover:bg-gray-3"
 			>
 				<IconCapMoveLeft class="size-4 text-gray-11" />
-				Back to editor
+				返回编辑器
 			</button>
 
 			<div class="flex flex-col flex-1 gap-3 p-3 min-h-0">
@@ -812,7 +812,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 						onClick={() => setRecordOpen(true)}
 					>
 						<IconLucideVideo class="size-4" />
-						Record a new clip
+						录制新片段
 					</Button>
 					<Button
 						variant="gray"
@@ -821,12 +821,12 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 						onClick={openImportMenu}
 					>
 						<IconCapCirclePlus class="size-4" />
-						Import
+						导入
 					</Button>
 				</div>
 
 				<div class="flex flex-none gap-2 items-center">
-					<span class="text-sm font-medium text-gray-12">Clips</span>
+					<span class="text-sm font-medium text-gray-12">片段</span>
 					<Show when={recordedClipCount() > 0}>
 						<span class="rounded-md bg-gray-3 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-gray-11">
 							{recordedClipCount()}
@@ -842,9 +842,9 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 								<div class="flex justify-center items-center rounded-full size-10 bg-gray-3 text-gray-9">
 									<IconCapClapperboard class="size-5" />
 								</div>
-								<p class="text-sm font-medium text-gray-12">No clips yet</p>
+								<p class="text-sm font-medium text-gray-12">暂无片段</p>
 								<p class="max-w-[200px] text-xs text-gray-10">
-									Record or import a clip and it will show up here.
+									录制或导入片段后会显示在这里。
 								</p>
 							</div>
 						}
@@ -939,7 +939,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 														onClick={() =>
 															startRename(index(), segment.name ?? "")
 														}
-														aria-label="Rename clip"
+														aria-label="重命名片段"
 														class="flex flex-none justify-center items-center rounded-md opacity-0 transition-colors size-7 text-gray-10 hover:bg-gray-5 hover:text-gray-12 group-hover:opacity-100"
 													>
 														<IconCapPencil class="size-3.5" />
@@ -949,7 +949,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 															type="button"
 															data-clip-delete
 															onClick={() => deleteClip(index())}
-															aria-label="Remove clip"
+															aria-label="移除片段"
 															class="flex flex-none justify-center items-center rounded-md opacity-0 transition-colors size-7 text-gray-10 hover:bg-red-3 hover:text-red-11 group-hover:opacity-100"
 														>
 															<IconCapTrash class="size-3.5" />
@@ -980,17 +980,15 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 									<IconCapClapperboard class="size-5" />
 								</div>
 								<div class="flex flex-col gap-0.5 min-w-0">
-									<h2 class="text-sm font-medium text-gray-12">
-										Record a new clip
-									</h2>
+									<h2 class="text-sm font-medium text-gray-12">录制新片段</h2>
 									<p class="text-xs text-gray-10">
-										Captured in Studio Mode and added to this project.
+										使用工作室模式录制并添加到此项目。
 									</p>
 								</div>
 								<button
 									type="button"
 									onClick={closeRecord}
-									aria-label="Close"
+									aria-label="关闭"
 									class="flex flex-none justify-center items-center ml-auto rounded-md transition-colors size-7 text-gray-11 hover:bg-gray-4 hover:text-gray-12"
 								>
 									<IconCapX class="size-3" />
@@ -1016,7 +1014,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 															selected={rawOptions.targetMode === "display"}
 															Component={IconMdiMonitor}
 															onClick={() => void openTargetMode("display")}
-															name="Display"
+															name="屏幕"
 															class="flex-1 pl-5 rounded-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 														/>
 														<TargetDropdownButton
@@ -1034,7 +1032,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 																});
 															}}
 															aria-haspopup="menu"
-															aria-label="Choose display"
+															aria-label="选择显示器"
 														/>
 													</div>
 													<div
@@ -1049,7 +1047,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 															selected={rawOptions.targetMode === "window"}
 															Component={IconLucideAppWindowMac}
 															onClick={() => void openTargetMode("window")}
-															name="Window"
+															name="窗口"
 															class="flex-1 pl-5 rounded-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 														/>
 														<TargetDropdownButton
@@ -1067,17 +1065,17 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 																});
 															}}
 															aria-haspopup="menu"
-															aria-label="Choose window"
+															aria-label="选择窗口"
 														/>
 													</div>
 												</div>
 												<div class="flex flex-row gap-2 items-stretch w-full">
 													{areaButton(
 														"area",
-														"Area",
+														"区域",
 														IconMaterialSymbolsScreenshotFrame2Rounded,
 													)}
-													{areaButton("camera", "Camera Only", IconLucideVideo)}
+													{areaButton("camera", "仅摄像头", IconLucideVideo)}
 												</div>
 											</div>
 
@@ -1138,10 +1136,10 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 													)?.focus();
 												}}
 												class="flex h-[36px] gap-1 items-center shrink-0 rounded-md px-2 text-xs text-gray-11 transition-colors hover:text-gray-12 hover:bg-gray-4"
-												aria-label="Back"
+												aria-label="返回"
 											>
 												<IconLucideArrowLeft class="size-3 text-gray-11" />
-												<span class="font-medium text-gray-12">Back</span>
+												<span class="font-medium text-gray-12">返回</span>
 											</button>
 											<div class="relative flex-1 min-w-0 h-[36px] flex items-center">
 												<IconLucideSearch class="absolute left-2 top-[48%] -translate-y-1/2 pointer-events-none size-3 text-gray-10" />
@@ -1161,8 +1159,8 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 													}}
 													placeholder={
 														activeTargetMenu() === "window"
-															? "Search windows"
-															: "Search displays"
+															? "搜索窗口"
+															: "搜索显示器"
 													}
 													autoCapitalize="off"
 													autocorrect="off"
@@ -1179,7 +1177,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 													isLoading={displayTargets.isPending}
 													errorMessage={
 														displayTargets.error
-															? "Unable to load displays."
+															? "无法加载显示器。"
 															: undefined
 													}
 													onSelect={(target) =>
@@ -1188,7 +1186,7 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 													highlightQuery={targetSearch().trim()}
 													emptyMessage={
 														targetSearch().trim()
-															? "No matching displays"
+															? "没有匹配的显示器"
 															: undefined
 													}
 												/>
@@ -1199,16 +1197,12 @@ function ClipsSidebarInner(props: { open: boolean; class?: string }) {
 													targets={filteredWindowTargets()}
 													isLoading={windowTargets.isPending}
 													errorMessage={
-														windowTargets.error
-															? "Unable to load windows."
-															: undefined
+														windowTargets.error ? "无法加载窗口。" : undefined
 													}
 													onSelect={(target) => void selectWindowTarget(target)}
 													highlightQuery={targetSearch().trim()}
 													emptyMessage={
-														targetSearch().trim()
-															? "No matching windows"
-															: undefined
+														targetSearch().trim() ? "没有匹配的窗口" : undefined
 													}
 												/>
 											</Show>

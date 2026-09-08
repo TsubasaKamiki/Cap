@@ -402,6 +402,9 @@ pub fn telemetry_enabled() -> bool {
 }
 
 pub fn async_capture_event(app: &AppHandle, event: AnalyticsEvent) {
+    if crate::LOCAL_ONLY {
+        return;
+    }
     let Some(client_id) = CLIENT_ID else {
         return;
     };

@@ -14,7 +14,7 @@ export type GeneralSettingsStore = TauriGeneralSettingsStore & {
 export const DEFAULT_TRANSCRIPTION_HINTS = [
 	"Cap",
 	"TypeScript",
-	"My Brand Name",
+	"我的品牌名称",
 	"mywebsite.com",
 ];
 
@@ -51,11 +51,13 @@ export function createDefaultGeneralSettings(): GeneralSettingsStore {
 		captureKeyboardEvents: true,
 		custom_cursor_capture2: true,
 		excludedWindows: [],
-		instantModeMaxResolution: 1920,
+		instantModeMaxResolution: 3840,
+		defaultProjectNameTemplate: "录制 {date} {time}",
 		crashRecoveryRecording: true,
 		maxFps: 60,
+		recordingResolution: 2160,
 		transcriptionHints: [...DEFAULT_TRANSCRIPTION_HINTS],
-		enableTelemetry: true,
+		enableTelemetry: false,
 	};
 }
 

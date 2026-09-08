@@ -1,3 +1,18 @@
+# Cap 中文本地版
+
+基于 Cap 的中文桌面录屏版本：无需登录、无订阅，录制、编辑和导出均在本机完成。
+
+- 录屏分辨率：720p、1080p、2K（1440p）、4K，保持画面比例。
+- 帧率：24、25、30、60、120 帧/秒，主窗口和常规设置均可调整并自动保存。
+- 支持本地截图、视频编辑和精确 3840 × 2160 的 4K 导出。
+- 已验证 Apple Silicon macOS 构建；首次使用需授予系统录屏与辅助功能权限。
+
+完整使用方式、构建步骤、功能范围及验证记录见 **[中文说明](README.zh-CN.md)**。
+
+以下保留上游项目介绍，其中的账户、订阅及云服务描述属于官方版本。
+
+---
+
 <p align="center">
 	<img width="150" height="150" src="https://github.com/CapSoftware/Cap/blob/main/apps/desktop/src-tauri/icons/Square310x310Logo.png" alt="Cap logo">
 </p>

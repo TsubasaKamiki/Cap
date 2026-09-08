@@ -172,20 +172,18 @@ export function PerformanceOverlay(_props: PerformanceOverlayProps) {
 	const copyStatsToClipboard = async () => {
 		const s = stats();
 		const statsText = [
-			`FPS: ${formatFps(s.fps)}`,
-			`Frame: ${formatMs(s.avgFrameMs)}ms avg`,
-			`Range: ${formatMs(s.minFrameMs)} - ${formatMs(s.maxFrameMs)}ms`,
-			`Jitter: ±${formatMs(s.jitter)}ms`,
-			s.droppedFrames > 0
-				? `Dropped: ${s.droppedFrames}/${s.totalFrames}`
-				: null,
-			`Playing: ${editorState.playing ? "Yes" : "No"}`,
+			`帧率：${formatFps(s.fps)}`,
+			`每帧：平均 ${formatMs(s.avgFrameMs)} 毫秒`,
+			`范围：${formatMs(s.minFrameMs)} - ${formatMs(s.maxFrameMs)} 毫秒`,
+			`抖动：±${formatMs(s.jitter)} 毫秒`,
+			s.droppedFrames > 0 ? `丢帧：${s.droppedFrames}/${s.totalFrames}` : null,
+			`播放中：${editorState.playing ? "是" : "否"}`,
 		]
 			.filter(Boolean)
 			.join("\n");
 
 		await writeText(statsText);
-		toast.success("Performance stats copied to clipboard");
+		toast.success("性能统计已复制到剪贴板");
 	};
 
 	const fpsColor = createMemo(() => {
@@ -224,7 +222,7 @@ export function PerformanceOverlay(_props: PerformanceOverlayProps) {
 						border: "1px solid rgba(255, 255, 255, 0.15)",
 					}}
 					onClick={copyStatsToClipboard}
-					title="Click to copy stats"
+					title="点击复制统计数据"
 				>
 					<div class="flex flex-col gap-0.5">
 						<div class="flex items-center gap-2">
@@ -240,7 +238,7 @@ export function PerformanceOverlay(_props: PerformanceOverlayProps) {
 							<span style={{ color: "#93c5fd" }}>
 								{formatMs(stats().avgFrameMs)}ms
 							</span>
-							<span style={{ color: "rgba(255, 255, 255, 0.4)" }}> avg</span>
+							<span style={{ color: "rgba(255, 255, 255, 0.4)" }}> 平均</span>
 						</div>
 						<div style={{ color: "rgba(255, 255, 255, 0.7)" }}>
 							<span>Range: </span>

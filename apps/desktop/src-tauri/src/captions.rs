@@ -29,7 +29,7 @@ pub use cap_project::{CaptionSegment, CaptionSettings, CaptionWord};
 use crate::{general_settings::GeneralSettingsStore, http_client};
 
 #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
-const PARAKEET_UNSUPPORTED_MESSAGE: &str = "Parakeet transcription is not available on Intel macOS";
+const PARAKEET_UNSUPPORTED_MESSAGE: &str = "Intel Mac 不支持 Parakeet 转录";
 
 #[derive(Debug, Serialize, Deserialize, Type, Clone)]
 pub enum TranscriptionEngine {
@@ -523,7 +523,7 @@ async fn extract_audio_from_video(video_path: &str, output_path: &PathBuf) -> Re
             let stream = input
                 .streams()
                 .best(ffmpeg::media::Type::Audio)
-                .ok_or_else(|| "No audio stream found".to_string())?;
+                .ok_or_else(|| "未找到音频流".to_string())?;
 
             let codec_params = stream.parameters();
 
@@ -1683,7 +1683,7 @@ pub fn parse_captions_json(json: &str) -> Result<cap_project::CaptionsData, Stri
                     let font = settings_obj
                         .get("font")
                         .and_then(|v| v.as_str())
-                        .unwrap_or("System Sans-Serif")
+                        .unwrap_or("系统无衬线字体")
                         .to_string();
                     let size = settings_obj
                         .get("size")
@@ -2075,7 +2075,7 @@ pub async fn download_whisper_model(
     let validated_path = validate_model_path(&app, &output_path)?;
     let key = model_download_key(&validated_path);
 
-    if !begin_model_download(&key, "Preparing model download".to_string()).await {
+    if !begin_model_download(&key, "正在准备下载模型".to_string()).await {
         return wait_for_model_download(&key).await;
     }
 
@@ -2430,7 +2430,7 @@ pub async fn download_parakeet_model(app: AppHandle, output_dir: String) -> Resu
     let validated_dir = validate_model_path(&app, &output_dir)?;
     let key = model_download_key(&validated_dir);
 
-    if !begin_model_download(&key, "Preparing model download".to_string()).await {
+    if !begin_model_download(&key, "正在准备下载模型".to_string()).await {
         return wait_for_model_download(&key).await;
     }
 

@@ -81,7 +81,7 @@ function CircleCursor() {
 
 function CursorStyleCard(props: { style: CursorStyle; recorded: boolean }) {
 	const label = () =>
-		props.style === "circle" ? "Circle" : CURSOR_FAMILIES[props.style].label;
+		props.style === "circle" ? "圆形" : CURSOR_FAMILIES[props.style].label;
 
 	const tile = () => (
 		<div class="flex h-[60px] w-full items-center justify-center rounded-[10px] border border-gray-3 bg-gray-2 transition-colors group-hover:border-gray-5 group-data-checked:border-blue-8 group-data-checked:bg-blue-3/40 group-data-checked:ring-1 group-data-checked:ring-blue-8 group-has-[input:focus-visible]:ring-2 group-has-[input:focus-visible]:ring-blue-8">
@@ -123,7 +123,7 @@ export function CursorStylePicker() {
 	});
 
 	return (
-		<Field name="Cursor Style" icon={<IconCapCursor />}>
+		<Field name="光标样式" icon={<IconCapCursor />}>
 			<KRadioGroup
 				class="grid grid-cols-4 gap-2"
 				value={selected()}
@@ -149,7 +149,7 @@ export function CursorRippleSection() {
 	return (
 		<KCollapsible open={ripple().enabled}>
 			<Field
-				name="Click Ripple"
+				name="点击波纹"
 				icon={<IconLucideMousePointerClick class="size-4" />}
 				value={
 					<Toggle
@@ -160,13 +160,13 @@ export function CursorRippleSection() {
 			/>
 			<KCollapsible.Content class="overflow-hidden border-b opacity-0 transition-opacity border-gray-3 animate-collapsible-up data-expanded:animate-collapsible-down data-expanded:opacity-100">
 				<div class="flex flex-col gap-4 pt-4 pb-6">
-					<Field name="Color">
+					<Field name="纯色">
 						<RgbInput
 							value={ripple().color}
 							onChange={(color) => updateRipple({ color })}
 						/>
 					</Field>
-					<Field name="Strength">
+					<Field name="强度">
 						<Slider
 							value={[Math.round(ripple().strength * 100)]}
 							onChange={(v) => updateRipple({ strength: v[0] / 100 })}
@@ -176,7 +176,7 @@ export function CursorRippleSection() {
 							formatTooltip={(v) => `${Math.round(v)}%`}
 						/>
 					</Field>
-					<Field name="Size">
+					<Field name="大小">
 						<Slider
 							value={[Math.round(ripple().size * 100)]}
 							onChange={(v) => updateRipple({ size: v[0] / 100 })}
@@ -186,7 +186,7 @@ export function CursorRippleSection() {
 							formatTooltip={(v) => `${Math.round(v)}%`}
 						/>
 					</Field>
-					<Field name="Duration">
+					<Field name="时长">
 						<Slider
 							value={[ripple().duration]}
 							onChange={(v) => updateRipple({ duration: v[0] })}

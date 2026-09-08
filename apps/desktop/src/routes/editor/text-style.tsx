@@ -10,74 +10,74 @@ import { TextInput } from "./TextInput";
 import type { TextAnimation } from "./text";
 
 export const FONT_OPTIONS = [
-	{ value: "System Sans-Serif", label: "System Sans-Serif" },
-	{ value: "System Serif", label: "System Serif" },
-	{ value: "System Monospace", label: "System Monospace" },
+	{ value: "系统无衬线字体", label: "系统无衬线字体" },
+	{ value: "系统衬线字体", label: "系统衬线字体" },
+	{ value: "系统等宽字体", label: "系统等宽字体" },
 ];
 
 export const CAPTION_POSITION_OPTIONS = [
-	{ value: "manual", label: "Manual" },
-	{ value: "top-left", label: "Top Left" },
-	{ value: "top-center", label: "Top Center" },
-	{ value: "top-right", label: "Top Right" },
-	{ value: "bottom-left", label: "Bottom Left" },
-	{ value: "bottom-center", label: "Bottom Center" },
-	{ value: "bottom-right", label: "Bottom Right" },
+	{ value: "manual", label: "手动" },
+	{ value: "top-left", label: "左上" },
+	{ value: "top-center", label: "中上" },
+	{ value: "top-right", label: "右上" },
+	{ value: "bottom-left", label: "左下" },
+	{ value: "bottom-center", label: "中下" },
+	{ value: "bottom-right", label: "右下" },
 ];
 
 export const KEYBOARD_POSITION_OPTIONS = [
-	{ value: "top-left", label: "Top Left" },
-	{ value: "top-center", label: "Top Center" },
-	{ value: "top-right", label: "Top Right" },
-	{ value: "bottom-left", label: "Bottom Left" },
-	{ value: "bottom-center", label: "Bottom Center" },
-	{ value: "bottom-right", label: "Bottom Right" },
+	{ value: "top-left", label: "左上" },
+	{ value: "top-center", label: "中上" },
+	{ value: "top-right", label: "右上" },
+	{ value: "bottom-left", label: "左下" },
+	{ value: "bottom-center", label: "中下" },
+	{ value: "bottom-right", label: "右下" },
 ];
 
 export const TEXT_WEIGHT_OPTIONS = [
-	{ label: "Normal", value: 400 },
-	{ label: "Medium", value: 500 },
-	{ label: "Bold", value: 700 },
+	{ label: "正常", value: 400 },
+	{ label: "中型", value: 500 },
+	{ label: "粗体", value: 700 },
 ];
 
 export const TEXT_SEGMENT_WEIGHT_OPTIONS = [
-	{ label: "Light", value: 300 },
-	{ label: "Regular", value: 400 },
-	{ label: "Medium", value: 500 },
-	{ label: "Semibold", value: 600 },
-	{ label: "Bold", value: 700 },
-	{ label: "Extra Bold", value: 800 },
-	{ label: "Black", value: 900 },
+	{ label: "轻度", value: 300 },
+	{ label: "常规", value: 400 },
+	{ label: "中型", value: 500 },
+	{ label: "半粗体", value: 600 },
+	{ label: "粗体", value: 700 },
+	{ label: "特粗体", value: 800 },
+	{ label: "极粗体", value: 900 },
 ];
 
 export const TEXT_ANIMATION_OPTIONS: {
 	value: TextAnimation;
 	label: string;
 }[] = [
-	{ value: "none", label: "None" },
-	{ value: "fade", label: "Fade" },
-	{ value: "slideUp", label: "Slide up" },
-	{ value: "slideDown", label: "Slide down" },
-	{ value: "pop", label: "Pop" },
-	{ value: "typewriter", label: "Typewriter" },
+	{ value: "none", label: "无" },
+	{ value: "fade", label: "褪色" },
+	{ value: "slideUp", label: "向上滑入" },
+	{ value: "slideDown", label: "向下滑入" },
+	{ value: "pop", label: "弹出" },
+	{ value: "typewriter", label: "打字机" },
 ];
 
 export const CAPTION_ANIMATION_OPTIONS = [
-	{ value: "none", label: "None" },
-	{ value: "bounce", label: "Bounce" },
-	{ value: "pop", label: "Pop" },
+	{ value: "none", label: "无" },
+	{ value: "bounce", label: "弹跳" },
+	{ value: "pop", label: "弹出" },
 ];
 
 export const CAPTION_HIGHLIGHT_STYLE_OPTIONS = [
-	{ value: "color", label: "Color" },
-	{ value: "pill", label: "Pill" },
+	{ value: "color", label: "纯色" },
+	{ value: "pill", label: "胶囊" },
 ];
 
 export function getTextWeightLabel(weight: number | null | undefined) {
 	const option = TEXT_WEIGHT_OPTIONS.find((option) => option.value === weight);
 	if (option) return option.label;
-	if (weight != null) return `Custom (${weight})`;
-	return "Normal";
+	if (weight != null) return `自定义（${weight}）`;
+	return "正常";
 }
 
 export function HexColorInput(props: {

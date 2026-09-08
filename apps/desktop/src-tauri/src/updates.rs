@@ -243,6 +243,9 @@ fn is_busy(app: &AppHandle) -> bool {
 #[tauri::command]
 #[specta::specta]
 pub async fn updates_check(app: AppHandle) -> Result<Option<UpdateCheckResult>, String> {
+    if crate::LOCAL_ONLY {
+        return Ok(None);
+    }
     let channel = current_channel(&app);
     Ok(check(&app).await?.map(|update| UpdateCheckResult {
         version: update.version.clone(),
@@ -265,7 +268,7 @@ pub async fn updates_download_and_install(app: AppHandle) -> Result<(), String> 
         Some(pending) => pending,
         None => {
             let Some(update) = check(&app).await? else {
-                return Err("No update available".to_string());
+                return Err("暂无可用更新".to_string());
             };
             PendingUpdate {
                 version: update.version.clone(),
@@ -306,6 +309,9 @@ pub fn updates_channel_changed(app: AppHandle) -> Result<(), String> {
 }
 
 pub fn spawn_background_loop(app: AppHandle) {
+    if crate::LOCAL_ONLY {
+        return;
+    }
     // Never auto-update dev builds.
     if cfg!(debug_assertions) {
         return;

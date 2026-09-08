@@ -1,0 +1,37 @@
+{
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "Cap 本地版",
+	"mainBinaryName": "Cap Local",
+	"identifier": "local.cap.desktop.zh",
+	"build": {
+		"beforeBuildCommand": "pnpm build"
+	},
+	"plugins": {
+		"updater": {
+			"active": false,
+			"pubkey": ""
+		},
+		"deep-link": {
+			"desktop": {
+				"schemes": ["cap-local"]
+			}
+		}
+	},
+	"bundle": {
+		"createUpdaterArtifacts": false,
+		"macOS": {
+			"signingIdentity": "-",
+			"entitlements": "Entitlements.plist"
+		},
+		"windows": {
+			"nsis": {
+				"languages": ["SimpChinese"],
+				"displayLanguageSelector": false
+			},
+			"wix": {
+				"language": "zh-CN",
+				"upgradeCode": "e31b1c9b-1480-4d26-8294-4b1e97e416c4"
+			}
+		}
+	}
+}

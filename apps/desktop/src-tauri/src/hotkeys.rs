@@ -188,11 +188,11 @@ async fn confirm_direct_recording_without_microphone(app: &AppHandle) -> bool {
     let (sender, receiver) = tokio::sync::oneshot::channel();
     app.dialog()
         .message("This recording will not include your voice.")
-        .title("No microphone detected")
+        .title("未检测到麦克风")
         .kind(MessageDialogKind::Warning)
         .buttons(MessageDialogButtons::OkCancelCustom(
-            "Record without microphone".to_string(),
-            "Cancel".to_string(),
+            "无麦克风录制".to_string(),
+            "取消".to_string(),
         ))
         .show(move |confirmed| {
             let _ = sender.send(confirmed);
@@ -293,7 +293,7 @@ async fn handle_hotkey(app: AppHandle, action: HotkeyAction) -> Result<(), Strin
             start_recording_from_hotkey(app, cap_recording::RecordingMode::Studio).await
         }
         HotkeyAction::StartInstantRecording => {
-            start_recording_from_hotkey(app, cap_recording::RecordingMode::Instant).await
+            start_recording_from_hotkey(app, cap_recording::RecordingMode::Studio).await
         }
         HotkeyAction::StopRecording => recording::stop_recording(app.clone(), app.state()).await,
         HotkeyAction::RestartRecording => recording::restart_recording(app.clone(), app.state())
@@ -310,7 +310,7 @@ async fn handle_hotkey(app: AppHandle, action: HotkeyAction) -> Result<(), Strin
                 .unwrap_or_default();
 
             let next = match current {
-                cap_recording::RecordingMode::Studio => cap_recording::RecordingMode::Instant,
+                cap_recording::RecordingMode::Studio => cap_recording::RecordingMode::Screenshot,
                 cap_recording::RecordingMode::Instant => cap_recording::RecordingMode::Screenshot,
                 cap_recording::RecordingMode::Screenshot => cap_recording::RecordingMode::Studio,
             };

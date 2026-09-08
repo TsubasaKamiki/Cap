@@ -111,7 +111,7 @@ export const defaultTextSegment = (
 	end,
 	track: 0,
 	enabled: true,
-	content: "Text",
+	content: "文字",
 	center: { x: 0.5, y: 0.5 },
 	// Rough hug of "Text" at 48px/1080p; the canvas overlay measures and
 	// fits the box to the exact glyph bounds as soon as it renders.

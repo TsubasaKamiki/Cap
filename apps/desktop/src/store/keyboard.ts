@@ -17,7 +17,7 @@ export type KeyboardSettings = {
 
 export const defaultKeyboardSettings: KeyboardSettings = {
 	enabled: false,
-	font: "System Sans-Serif",
+	font: "系统无衬线字体",
 	size: 50,
 	color: "#FFFFFF",
 	backgroundColor: "#000000",

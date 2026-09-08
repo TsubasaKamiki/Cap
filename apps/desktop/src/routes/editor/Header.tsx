@@ -19,10 +19,8 @@ import CaptionControlsWindows11 from "~/components/titlebar/controls/CaptionCont
 import { trackEvent } from "~/utils/analytics";
 import { commands } from "~/utils/tauri";
 import { useEditorContext } from "./context";
-import OrganizationDropdown from "./OrganizationDropdown";
 import PresetsDropdown from "./PresetsDropdown";
 import { createRecordingTitleSave } from "./recording-title-save";
-import ShareButton from "./ShareButton";
 import { EditorButton } from "./ui";
 
 export type ResolutionOption = {
@@ -61,7 +59,6 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 		meta,
 		exportState,
 		setExportState,
-		customDomain,
 		editorState,
 		setEditorState,
 	} = useEditorContext();
@@ -104,12 +101,11 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 					onClick={async () => {
 						clearTimelineSelection();
 
-						if (!(await ask("Are you sure you want to delete this recording?")))
-							return;
+						if (!(await ask("确定要删除这条录制吗？"))) return;
 
 						await commands.editorDeleteProject();
 					}}
-					tooltipText="Delete recording"
+					tooltipText="删除录制"
 					leftIcon={<IconCapTrash class="w-5" />}
 				/>
 				<EditorButton
@@ -119,7 +115,7 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 						console.log({ path: `${editorInstance.path}/` });
 						revealItemInDir(`${editorInstance.path}/`);
 					}}
-					tooltipText="Open recording bundle"
+					tooltipText="打开录制项目文件夹"
 					leftIcon={<IconLucideFolder class="w-5" />}
 				/>
 
@@ -140,7 +136,6 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 				class="flex flex-row items-center justify-center gap-2 px-4 border-x border-black-transparent-10"
 			>
 				<PresetsDropdown />
-				<OrganizationDropdown />
 			</div>
 
 			<div
@@ -159,7 +154,7 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 					disabled={
 						!projectHistory.canUndo() && !editorState.timeline.selection
 					}
-					tooltipText="Undo"
+					tooltipText="撤销"
 					leftIcon={<IconCapUndo class="w-5" />}
 				/>
 				<EditorButton
@@ -171,13 +166,11 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 					disabled={
 						!projectHistory.canRedo() && !editorState.timeline.selection
 					}
-					tooltipText="Redo"
+					tooltipText="重做"
 					leftIcon={<IconCapRedo class="w-5" />}
 				/>
 				<div data-tauri-drag-region class="flex-1 h-full" />
-				<Show when={customDomain.data}>
-					<ShareButton />
-				</Show>
+
 				<Button
 					variant={isClipsOpen() ? "white" : "gray"}
 					class="flex gap-1.5 justify-center h-[40px]"
@@ -191,7 +184,7 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 					}}
 				>
 					<IconCapClapperboard class="size-4" />
-					Clips
+					片段
 				</Button>
 				<Show when={hasTranscript()}>
 					<Button
@@ -212,7 +205,7 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 						>
 							<IconLucideArrowLeft class="size-4" />
 						</Show>
-						{isTranscriptOpen() ? "Back" : "Captions"}
+						{isTranscriptOpen() ? "返回" : "字幕"}
 					</Button>
 				</Show>
 				<button
@@ -235,7 +228,7 @@ export function Header(props: { registerTitleSave: RegisterTitleSave }) {
 					}}
 				>
 					<UploadIcon class="size-4" />
-					Export
+					导出
 				</button>
 				{ostype() === "windows" && <CaptionControlsWindows11 />}
 			</div>
@@ -303,7 +296,7 @@ function NameEditor(props: {
 				void refetchMeta();
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				toast.error(`Failed to save recording title: ${message}`);
+				toast.error(`无法保存录制标题：${message}`);
 				throw error;
 			}
 		},

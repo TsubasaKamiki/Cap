@@ -26,6 +26,7 @@ import { TransitionGroup } from "solid-transition-group";
 import { authStore } from "~/store";
 import { createTauriEventListener } from "~/utils/createEventListener";
 import { createExportToFileTask, exportVideo } from "~/utils/export";
+import { LOCAL_EXPORT_SIZE } from "~/utils/local-build";
 import {
 	commands,
 	events,
@@ -34,10 +35,8 @@ import {
 	type UploadResult,
 } from "~/utils/tauri";
 import IconCapEditor from "~icons/cap/editor";
-import IconCapUpload from "~icons/cap/upload";
 import IconLucideClock from "~icons/lucide/clock";
 import IconLucideEye from "~icons/lucide/eye";
-import { FPS, OUTPUT_SIZE } from "./editor/context";
 
 type MediaEntry = {
 	path: string;
@@ -154,11 +153,6 @@ export default function () {
 
 								createFakeWindowBounds(ref, () => media.path);
 
-								const recordingMeta = createQuery(() => ({
-									queryKey: ["recordingMeta", media.path],
-									queryFn: () => commands.getRecordingMeta(media.path, type),
-								}));
-
 								return (
 									<Suspense>
 										<div
@@ -185,7 +179,7 @@ export default function () {
 												>
 													<img
 														class="pointer-events-none w-full h-full object-cover absolute inset-0 -z-10 rounded-[7.4px]"
-														alt="media preview"
+														alt="媒体预览"
 														src={`${convertFileSrc(
 															isRecording
 																? `${media.path}/screenshots/display.jpg`
@@ -206,10 +200,10 @@ export default function () {
 															<ActionProgressOverlay
 																title={
 																	state.type === "rendering"
-																		? "Rendering video"
+																		? "正在渲染视频"
 																		: state.type === "copying"
-																			? "Copying to clipboard"
-																			: "Copied to clipboard"
+																			? "正在复制到剪贴板"
+																			: "已复制到剪贴板"
 																}
 																progressPercentage={actionProgressPercentage(
 																	actionState,
@@ -227,20 +221,20 @@ export default function () {
 															<ActionProgressOverlay
 																title={(() => {
 																	if (state.type === "choosing-location")
-																		return "Preparing";
+																		return "正在准备";
 
 																	if (isRecording) {
 																		if (state.type === "rendering")
-																			return "Rendering video";
+																			return "正在渲染视频";
 																		if (state.type === "saving")
-																			return "Saving video";
-																		return "Saved video";
+																			return "正在保存视频";
+																		return "视频已保存";
 																	} else {
 																		if (state.type === "rendering")
-																			return "Rendering image";
+																			return "正在渲染图片";
 																		if (state.type === "saving")
-																			return "Saving image";
-																		return "Saved image";
+																			return "正在保存图片";
+																		return "图片已保存";
 																	}
 																})()}
 																progressPercentage={actionProgressPercentage(
@@ -248,9 +242,7 @@ export default function () {
 																)}
 																progressMessage={
 																	state.type === "choosing-location" &&
-																	`Choose where to ${
-																		isRecording ? "export video" : "save image"
-																	}...`
+																	`选择${isRecording ? "视频导出" : "图片保存"}位置…`
 																}
 															/>
 														)}
@@ -265,10 +257,10 @@ export default function () {
 															<ActionProgressOverlay
 																title={
 																	state.type === "rendering"
-																		? "Rendering video"
+																		? "正在渲染视频"
 																		: state.type === "uploading"
-																			? "Creating shareable link"
-																			: "Shareable link copied"
+																			? "正在创建分享链接"
+																			: "分享链接已复制"
 																}
 																progressPercentage={actionProgressPercentage(
 																	actionState,
@@ -292,7 +284,7 @@ export default function () {
 												>
 													<TooltipIconButton
 														class="absolute top-3 left-3 z-20"
-														tooltipText="Close"
+														tooltipText="关闭"
 														tooltipPlacement="right"
 														onClick={() => {
 															const setMedia = isRecording
@@ -315,7 +307,7 @@ export default function () {
 													{isRecording ? (
 														<TooltipIconButton
 															class="absolute bottom-3 left-3 z-20"
-															tooltipText="Edit"
+															tooltipText="编辑"
 															tooltipPlacement="right"
 															onClick={() => {
 																const setMedia = isRecording
@@ -341,7 +333,7 @@ export default function () {
 													) : (
 														<TooltipIconButton
 															class="absolute bottom-3 left-3 z-20"
-															tooltipText="View"
+															tooltipText="查看"
 															tooltipPlacement="right"
 															onClick={() => {
 																commands.openFilePath(media.path);
@@ -354,33 +346,22 @@ export default function () {
 														class="absolute top-3 right-3 z-20"
 														tooltipText={
 															copy.isPending
-																? "Copying to Clipboard"
-																: "Copy to Clipboard"
+																? "正在复制到剪贴板"
+																: "复制到剪贴板"
 														}
 														tooltipPlacement="left"
 														onClick={() => copy.mutate()}
 													>
 														<IconCapCopy class="size-4" />
 													</TooltipIconButton>
-													<TooltipIconButton
-														class="absolute right-3 bottom-3 z-998"
-														tooltipText={
-															recordingMeta.data?.sharing
-																? "Copy Shareable Link"
-																: "Create Shareable Link"
-														}
-														tooltipPlacement="left"
-														onClick={() => upload.mutate()}
-													>
-														<IconCapUpload class="size-4" />
-													</TooltipIconButton>
+													{null}
 													<div class="flex absolute inset-0 justify-center items-center">
 														<Button
 															variant="white"
 															size="sm"
 															onClick={() => save.mutate()}
 														>
-															Export
+															导出
 														</Button>
 													</div>
 												</div>
@@ -558,12 +539,12 @@ function createRecordingMutations(
 	onEvent: (e: "upgradeRequired") => void,
 ) {
 	const type = media.type ?? "recording";
-	const isRecording = type !== "screenshot";
-
 	const recordingMeta = createQuery(() => ({
 		queryKey: ["recordingMeta", media.path],
 		queryFn: () => commands.getRecordingMeta(media.path, type),
 	}));
+
+	const isRecording = type !== "screenshot";
 
 	// just a wrapper of exportVideo to provide base settings
 	const exportWithDefaultSettings = (
@@ -573,8 +554,8 @@ function createRecordingMutations(
 			media.path,
 			{
 				format: "Mp4",
-				fps: FPS,
-				resolution_base: OUTPUT_SIZE,
+				fps: 30,
+				resolution_base: LOCAL_EXPORT_SIZE,
 				compression: "Web",
 				custom_bpp: null,
 			},
@@ -641,7 +622,7 @@ function createRecordingMutations(
 			}
 
 			const defaultName = isRecording
-				? "Cap Recording"
+				? "Cap 录制"
 				: media.path.split(".cap/")[1];
 			const suggestedName = meta.pretty_name || defaultName;
 
@@ -665,8 +646,8 @@ function createRecordingMutations(
 					media.path,
 					{
 						format: "Mp4",
-						fps: FPS,
-						resolution_base: OUTPUT_SIZE,
+						fps: 30,
+						resolution_base: LOCAL_EXPORT_SIZE,
 						compression: "Web",
 						custom_bpp: null,
 					},
@@ -722,7 +703,7 @@ function createRecordingMutations(
 			// Check connectivity first — prevent hanging on network calls when offline
 			if (!navigator.onLine) {
 				await commands.globalMessageDialog(
-					"You appear to be offline. Please check your internet connection and try again.",
+					"网络似乎已断开，请检查网络连接后重试。",
 				);
 				return;
 			}

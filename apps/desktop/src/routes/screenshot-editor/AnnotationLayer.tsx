@@ -72,7 +72,7 @@ export function AnnotationLayer(props: {
 	createEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (textEditingId()) return;
-			if (e.key === "Backspace" || e.key === "Delete") {
+			if (e.key === "Backspace" || e.key === "删除") {
 				const id = selectedAnnotationId();
 				if (id) {
 					projectHistory.push(); // Save current state before delete
@@ -220,7 +220,7 @@ export function AnnotationLayer(props: {
 			fillColor: "transparent",
 			opacity: styleSource?.opacity ?? 1,
 			rotation: 0,
-			text: tool === "text" ? "Text" : null,
+			text: tool === "text" ? "文字" : null,
 			maskType: tool === "mask" ? "pixelate" : null,
 			maskLevel: tool === "mask" ? 7 : null,
 			points: tool === "draw" ? [[startX, startY]] : null,

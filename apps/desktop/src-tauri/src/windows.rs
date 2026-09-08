@@ -882,18 +882,18 @@ impl CapWindowId {
 
     pub fn title(&self) -> String {
         match self {
-            Self::Settings => "Cap Settings".to_string(),
-            Self::WindowCaptureOccluder { .. } => "Cap Window Capture Occluder".to_string(),
-            Self::CaptureArea => "Cap Capture Area".to_string(),
-            Self::RecordingControls => "Cap Recording Controls".to_string(),
-            Self::Editor { .. } => "Cap Editor".to_string(),
-            Self::ScreenshotEditor { .. } => "Cap Screenshot Editor".to_string(),
-            Self::ModeSelect => "Cap Mode Selection".to_string(),
-            Self::Onboarding => "Welcome to Cap".to_string(),
-            Self::Camera => "Cap Camera".to_string(),
-            Self::RecordingsOverlay => "Cap Recordings Overlay".to_string(),
-            Self::TargetSelectOverlay { .. } => "Cap Target Select".to_string(),
-            Self::Teleprompter => "Cap Teleprompter".to_string(),
+            Self::Settings => "Cap 设置".to_string(),
+            Self::WindowCaptureOccluder { .. } => "Cap 窗口遮挡层".to_string(),
+            Self::CaptureArea => "Cap 录制区域".to_string(),
+            Self::RecordingControls => "Cap 录制控制栏".to_string(),
+            Self::Editor { .. } => "Cap 编辑器".to_string(),
+            Self::ScreenshotEditor { .. } => "Cap 截图编辑器".to_string(),
+            Self::ModeSelect => "Cap 模式选择".to_string(),
+            Self::Onboarding => "欢迎使用 Cap".to_string(),
+            Self::Camera => "Cap 摄像头".to_string(),
+            Self::RecordingsOverlay => "Cap 录制浮层".to_string(),
+            Self::TargetSelectOverlay { .. } => "Cap 目标选择".to_string(),
+            Self::Teleprompter => "Cap 提词器".to_string(),
             _ => "Cap".to_string(),
         }
     }
@@ -961,7 +961,7 @@ impl CapWindowId {
 
     pub fn min_size(&self) -> Option<(f64, f64)> {
         Some(match self {
-            Self::Main => (330.0, 395.0),
+            Self::Main => (330.0, 435.0),
             Self::Editor { .. } => (1275.0, 800.0),
             Self::ScreenshotEditor { .. } => (800.0, 600.0),
             Self::Settings => (780.0, 560.0),
@@ -1021,6 +1021,13 @@ impl ShowCapWindow {
     }
 
     async fn show_inner(&self, app: &AppHandle<Wry>) -> tauri::Result<WebviewWindow> {
+        if crate::LOCAL_ONLY && matches!(self, Self::Upgrade) {
+            return Self::Main {
+                init_target_mode: None,
+            }
+            .show(app)
+            .await;
+        }
         let reveal_generation = crate::clean_capture::generation(app);
         if matches!(self, Self::Main { .. }) && crate::clean_capture::phase(app).is_some() {
             crate::clean_capture::show_main_controls(app)
@@ -1497,7 +1504,7 @@ impl ShowCapWindow {
                         None => tauri::Position::Logical(tauri::LogicalPosition::new(pos.x, pos.y)),
                     }
                 } else {
-                    let (pos_x, pos_y) = cursor_monitor.center_position(330.0, 395.0);
+                    let (pos_x, pos_y) = cursor_monitor.center_position(330.0, 435.0);
                     cursor_monitor.position(pos_x, pos_y)
                 };
 
@@ -1556,7 +1563,7 @@ impl ShowCapWindow {
 
                     #[cfg(windows)]
                     {
-                        if let Err(e) = window.set_size(LogicalSize::new(330.0, 395.0)) {
+                        if let Err(e) = window.set_size(LogicalSize::new(330.0, 435.0)) {
                             warn!("Failed to set Main window size on Windows: {}", e);
                         }
                         if let Err(e) = window.set_position(main_position) {

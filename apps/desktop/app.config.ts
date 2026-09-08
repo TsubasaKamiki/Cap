@@ -31,7 +31,24 @@ const fontDisplayBlock = {
 
 export default defineConfig({
 	ssr: false,
-	server: { preset: "static" },
+	server: {
+		preset: "static",
+		rollupConfig: {
+			plugins: [
+				{
+					name: "cap-quoted-virtual-paths",
+					transform(code: string, id: string) {
+						if (!id.includes("#nitro-internal-virtual/")) return;
+						return code.replace(
+							/^import (\w+) from '(.*)';$/gm,
+							(_line, binding: string, modulePath: string) =>
+								`import ${binding} from ${JSON.stringify(modulePath)};`,
+						);
+					},
+				},
+			],
+		},
+	},
 	// https://vitejs.dev/config
 	vite: () => ({
 		// Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

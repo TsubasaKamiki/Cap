@@ -26,10 +26,10 @@ export const EMPTY_ORGANIZATION_BRAND_COLORS = {
 } satisfies OrganizationBrandColors;
 
 export const ORGANIZATION_BRAND_COLOR_LABELS = {
-	primary: "Primary",
-	secondary: "Secondary",
-	accent: "Accent",
-	background: "Background",
+	primary: "主色",
+	secondary: "辅色",
+	accent: "强调色",
+	background: "背景",
 } satisfies Record<keyof OrganizationBrandColors, string>;
 
 export const ORGANIZATION_BRAND_COLOR_KEYS = [
@@ -399,7 +399,7 @@ export async function encodeFileAsBase64(file: File) {
 
 function getResponseError(body: unknown) {
 	if (isRecord(body) && typeof body.error === "string") return body.error;
-	return "Failed to update organization branding";
+	return "无法更新组织品牌设置";
 }
 
 function mergeCachedOrganization(

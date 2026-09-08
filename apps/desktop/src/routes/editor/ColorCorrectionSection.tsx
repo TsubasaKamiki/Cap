@@ -25,15 +25,15 @@ const ADJUST_SLIDERS: {
 	max: number;
 	keepsPreset?: boolean;
 }[] = [
-	{ key: "intensity", label: "Strength", min: 0, max: 100, keepsPreset: true },
-	{ key: "exposure", label: "Exposure", min: -100, max: 100 },
-	{ key: "contrast", label: "Contrast", min: -100, max: 100 },
-	{ key: "saturation", label: "Saturation", min: -100, max: 100 },
-	{ key: "temperature", label: "Temperature", min: -100, max: 100 },
-	{ key: "tint", label: "Tint", min: -100, max: 100 },
-	{ key: "fade", label: "Fade", min: 0, max: 100 },
-	{ key: "splitTone", label: "Split Tone", min: -100, max: 100 },
-	{ key: "vignette", label: "Vignette", min: 0, max: 100 },
+	{ key: "intensity", label: "强度", min: 0, max: 100, keepsPreset: true },
+	{ key: "exposure", label: "曝光", min: -100, max: 100 },
+	{ key: "contrast", label: "对比度", min: -100, max: 100 },
+	{ key: "saturation", label: "饱和度", min: -100, max: 100 },
+	{ key: "temperature", label: "色温", min: -100, max: 100 },
+	{ key: "tint", label: "色调", min: -100, max: 100 },
+	{ key: "fade", label: "褪色", min: 0, max: 100 },
+	{ key: "splitTone", label: "分离色调", min: -100, max: 100 },
+	{ key: "vignette", label: "暗角", min: 0, max: 100 },
 ];
 
 function ColorPresetPreview(props: { preset: ColorPresetDefinition }) {
@@ -124,7 +124,7 @@ export function ColorCorrectionSection(props: {
 	return (
 		<>
 			<Field
-				name="Color Correction"
+				name="色彩校正"
 				icon={<IconLucideSlidersHorizontal class="size-4" />}
 			>
 				<div class="grid grid-cols-3 gap-2">
@@ -150,7 +150,7 @@ export function ColorCorrectionSection(props: {
 					</For>
 				</div>
 			</Field>
-			<Field name="Grain" icon={<IconLucideGrip class="size-4" />}>
+			<Field name="颗粒" icon={<IconLucideGrip class="size-4" />}>
 				<Slider
 					value={[grade().grain * 100]}
 					onChange={(v) => setValue("grain", v[0] / 100, true)}
@@ -162,7 +162,7 @@ export function ColorCorrectionSection(props: {
 			</Field>
 			<Show when={props.target === "screen"}>
 				<Field
-					name="Apply to cursor"
+					name="应用到光标"
 					icon={<IconLucideMousePointer2 class="size-4" />}
 					value={
 						<Toggle
@@ -177,7 +177,7 @@ export function ColorCorrectionSection(props: {
 			<div class="w-full">
 				<KCollapsible open={adjustOpen()} onOpenChange={handleAdjustToggle}>
 					<KCollapsible.Trigger class="flex gap-1 items-center w-full text-sm font-medium text-left group text-gray-12 hover:text-gray-10 transition duration-200 outline-hidden">
-						Fine-tune colors
+						微调颜色
 						<IconCapChevronDown class="transition-transform duration-200 size-5 group-data-expanded:rotate-180" />
 					</KCollapsible.Trigger>
 					<KCollapsible.Content class="overflow-hidden opacity-0 transition-opacity animate-collapsible-up data-expanded:animate-collapsible-down data-expanded:opacity-100">

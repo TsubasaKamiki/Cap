@@ -183,18 +183,14 @@ export default function Teleprompter() {
 				);
 			} catch (error) {
 				if (disposed || recordingStateRevision !== revision) return;
-				setPauseStateError(
-					"Cannot confirm recording state. Reopen the teleprompter to retry.",
-				);
+				setPauseStateError("无法确认录制状态，请重新打开提词器重试。");
 				console.error("Failed to read recording pause state:", error);
 			}
 		})
 		.catch((error) => {
 			if (disposed) return;
 			recordingListenersFailed = true;
-			setPauseStateError(
-				"Cannot receive recording controls. Reopen the teleprompter to retry.",
-			);
+			setPauseStateError("无法接收录制控制，请重新打开提词器重试。");
 			setPlayback((current) =>
 				updateTeleprompterPlayback(current, "recording-paused"),
 			);
@@ -425,10 +421,10 @@ export default function Teleprompter() {
 					<span>
 						{pauseStateError() ??
 							(playback().recordingPaused
-								? "Scrolling paused with recording"
+								? "随录制暂停滚动"
 								: isLinux
-									? "This window may appear in recordings on Linux"
-									: "This window is hidden from Cap recordings")}
+									? "此窗口可能出现在 Linux 录屏中"
+									: "此窗口不会出现在 Cap 录屏中")}
 					</span>
 				</div>
 				<Show when={isWindows}>
@@ -465,13 +461,13 @@ export default function Teleprompter() {
 						spellcheck={true}
 						value={state().script}
 						onInput={(event) => updateScript(event.currentTarget.value)}
-						placeholder="Paste or type your script…"
+						placeholder="粘贴或输入稿件…"
 						class="block w-full resize-none overflow-hidden bg-transparent px-8 text-center font-medium tracking-[-0.025em] text-gray-12 outline-none placeholder:text-gray-8/70 selection:bg-blue-9/25"
 						style={{
 							"font-size": `${state().fontSize}px`,
 							"line-height": state().lineHeight,
 						}}
-						aria-label="Teleprompter script"
+						aria-label="提词器稿件"
 					/>
 					<div aria-hidden="true" style={{ height: spacerHeight() }} />
 				</div>
@@ -481,7 +477,7 @@ export default function Teleprompter() {
 				<div class="absolute bottom-12 right-2 z-30 w-48 rounded-2xl border border-gray-12/8 bg-gray-1/80 p-2 shadow-xl backdrop-blur-2xl">
 					<div>
 						<SettingToggle
-							label="Cue markers"
+							label="提示标记"
 							active={state().showCueMarkers}
 							onChange={(showCueMarkers) =>
 								setState((current) => ({ ...current, showCueMarkers }))
@@ -490,7 +486,7 @@ export default function Teleprompter() {
 							<IconLucideChevronRight class="size-3.5" />
 						</SettingToggle>
 						<SettingToggle
-							label="Mirror text"
+							label="镜像文字"
 							active={state().mirror}
 							onChange={(mirror) =>
 								setState((current) => ({ ...current, mirror }))
@@ -508,15 +504,13 @@ export default function Teleprompter() {
 					title={
 						playback().recordingPaused
 							? playback().requested
-								? "Recording paused. Cancel automatic scroll resume"
-								: "Play when recording resumes"
+								? "录制已暂停，取消自动恢复滚动"
+								: "录制继续时播放"
 							: playback().requested
-								? "Pause"
-								: "Play"
+								? "暂停"
+								: "播放"
 					}
-					aria-label={
-						playback().requested ? "Pause teleprompter" : "Play teleprompter"
-					}
+					aria-label={playback().requested ? "暂停提词器" : "播放提词器"}
 					aria-pressed={playback().requested}
 					disabled={!hasScript() || pauseStateError() !== null}
 					onClick={togglePlayback}
@@ -530,7 +524,7 @@ export default function Teleprompter() {
 					</Show>
 				</button>
 				<div
-					title={`Scroll speed: ${state().wordsPerMinute} wpm`}
+					title={`滚动速度：${state().wordsPerMinute} 词/分钟`}
 					class="ml-1.5 flex h-8 items-center gap-1.5 rounded-full border border-gray-12/6 bg-gray-12/5 px-2 backdrop-blur-xl"
 				>
 					<IconLucideGauge class="size-3.5 shrink-0 text-gray-9" />
@@ -547,16 +541,16 @@ export default function Teleprompter() {
 							}))
 						}
 						class="h-1 w-12 cursor-pointer appearance-none rounded-full bg-gray-12/10 [&::-webkit-slider-thumb]:size-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-9 [&::-webkit-slider-thumb]:shadow-sm"
-						aria-label="Scroll speed"
+						aria-label="滚动速度"
 					/>
 					<span class="w-12 text-right text-[10px] tabular-nums text-gray-9">
-						{state().wordsPerMinute} wpm
+						{state().wordsPerMinute} 词/分钟
 					</span>
 				</div>
 
 				<div class="ml-auto flex items-center gap-1.5">
 					<div
-						title={`Window opacity: ${state().windowOpacityPercent}%`}
+						title={`窗口不透明度：${state().windowOpacityPercent}%`}
 						class="flex h-8 items-center gap-1.5 rounded-full border border-gray-12/6 bg-gray-12/5 px-2 backdrop-blur-xl"
 					>
 						<IconLucideLayers class="size-3.5 shrink-0 text-gray-9" />
@@ -573,22 +567,22 @@ export default function Teleprompter() {
 								}))
 							}
 							class="h-1 w-12 cursor-pointer appearance-none rounded-full bg-gray-12/10 [&::-webkit-slider-thumb]:size-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-11 [&::-webkit-slider-thumb]:shadow-sm"
-							aria-label="Window opacity"
+							aria-label="窗口不透明度"
 						/>
 					</div>
 					<div class="flex h-8 items-center rounded-full border border-gray-12/6 bg-gray-12/5 px-0.5 backdrop-blur-xl">
-						<ToolButton label="Smaller text" onClick={() => changeFontSize(-2)}>
+						<ToolButton label="缩小文字" onClick={() => changeFontSize(-2)}>
 							<IconLucideMinus class="size-3.5" />
 						</ToolButton>
 						<span class="w-6 text-center text-[10px] tabular-nums text-gray-9">
 							{state().fontSize}
 						</span>
-						<ToolButton label="Larger text" onClick={() => changeFontSize(2)}>
+						<ToolButton label="放大文字" onClick={() => changeFontSize(2)}>
 							<IconLucidePlus class="size-3.5" />
 						</ToolButton>
 					</div>
 					<ToolButton
-						label="Settings"
+						label="设置"
 						active={settingsOpen()}
 						onClick={() => setSettingsOpen((open) => !open)}
 					>

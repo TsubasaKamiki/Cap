@@ -105,7 +105,7 @@ export function ThreeDTrack(props: {
 		const scene = current
 			? CAMERA3D_SCENES.find((s) => s.id === current.sceneId)
 			: undefined;
-		return scene?.shots[index]?.name ?? `Shot ${index + 1}`;
+		return scene?.shots[index]?.name ?? `镜头 ${index + 1}`;
 	};
 
 	const startSetup = () =>
@@ -333,7 +333,7 @@ export function ThreeDTrack(props: {
 								<span class="flex justify-center items-center rounded-full transition-colors size-6 bg-gray-4/40 text-gray-11 group-hover/empty:bg-[var(--accent)] group-hover/empty:text-white">
 									<IconLucidePlus class="size-3.5" />
 								</span>
-								<span class="font-medium">Add 3D scene</span>
+								<span class="font-medium">添加 3D 场景</span>
 							</button>
 						}
 					>
@@ -364,7 +364,7 @@ export function ThreeDTrack(props: {
 							project.timeline?.camera3dSegments ?? [];
 
 						const motionLabel = () =>
-							hasCamera3DMotion(segment()) ? "Motion" : "Still";
+							hasCamera3DMotion(segment()) ? "动态" : "静态";
 
 						// Double-clicking a handle expands the segment as far as it can go
 						// in that direction (up to the neighbouring segment / timeline edge).
@@ -540,7 +540,7 @@ export function ThreeDTrack(props: {
 									isSelected() ? "border-gray-12" : "border-transparent",
 								)}
 								innerClass="ring-red-5"
-								title={`3D Perspective · ${motionLabel()}`}
+								title={`3D 透视 · ${motionLabel()}`}
 								segment={segment()}
 								onMouseDown={(e) => {
 									e.stopPropagation();

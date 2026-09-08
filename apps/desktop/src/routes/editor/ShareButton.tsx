@@ -31,7 +31,7 @@ function ShareButton() {
 
 			if (!navigator.onLine) {
 				await commands.globalMessageDialog(
-					"You appear to be offline. Please check your internet connection and try again.",
+					"网络似乎已断开，请检查网络连接后重试。",
 				);
 				return;
 			}
@@ -133,7 +133,7 @@ function ShareButton() {
 		onError: (error) => {
 			console.error(error);
 			commands.globalMessageDialog(
-				error instanceof Error ? error.message : "Failed to upload recording",
+				error instanceof Error ? error.message : "无法上传录制",
 			);
 		},
 		onSettled() {
@@ -199,9 +199,7 @@ function ShareButton() {
 					return (
 						<div class="flex gap-3 items-center">
 							<Tooltip
-								content={
-									upload.isPending ? "Reuploading video" : "Reupload video"
-								}
+								content={upload.isPending ? "正在重新上传视频" : "重新上传视频"}
 							>
 								<Button
 									disabled={upload.isPending}
@@ -222,7 +220,7 @@ function ShareButton() {
 									)}
 								</Button>
 							</Tooltip>
-							<Tooltip content="Open link">
+							<Tooltip content="打开链接">
 								<div class="rounded-xl px-3 py-2 flex flex-row items-center gap-1.5 bg-gray-3 hover:bg-gray-4 transition-colors duration-100">
 									<a
 										href={
@@ -304,7 +302,7 @@ function ShareButton() {
 			</Show>
 			<Dialog.Root open={!upload.isIdle}>
 				<DialogContent
-					title={"Reupload Recording"}
+					title={"重新上传录制"}
 					confirm={null}
 					close={null}
 					class="text-gray-12 dark:text-gray-12"
@@ -334,12 +332,12 @@ function ShareButton() {
 
 						<p class="relative z-10 mt-3 text-xs text-white">
 							{uploadState.type === "idle" || uploadState.type === "starting"
-								? "Preparing to render..."
+								? "正在准备渲染…"
 								: uploadState.type === "rendering"
-									? `Rendering video (${uploadState.renderedFrames}/${uploadState.totalFrames} frames)`
+									? `正在渲染视频（${uploadState.renderedFrames}/${uploadState.totalFrames} 帧）`
 									: uploadState.type === "uploading"
-										? `Uploading - ${Math.floor(uploadState.progress)}%`
-										: "Link copied to clipboard!"}
+										? `正在上传 - ${Math.floor(uploadState.progress)}%`
+										: "链接已复制到剪贴板！"}
 						</p>
 					</div>
 				</DialogContent>

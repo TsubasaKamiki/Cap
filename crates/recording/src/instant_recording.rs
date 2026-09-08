@@ -915,6 +915,7 @@ impl ActorBuilder {
         spawn_instant_recording_actor_inner(
             self.output_path,
             RecordingBaseInputs {
+                max_capture_size: None,
                 capture_target: self.capture_target,
                 capture_system_audio: self.system_audio,
                 mic_feed: self.mic_feed,
@@ -1454,6 +1455,14 @@ fn clamp_size(input: (u32, u32), max: (u32, u32)) -> (u32, u32) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn uhd_capture_preserves_native_pixels_without_upscaling() {
+        assert_eq!(clamp_size((3840, 2160), (3840, 2160)), (3840, 2160));
+        assert_eq!(clamp_size((2160, 3840), (3840, 2160)), (2160, 3840));
+        assert_eq!(clamp_size((7680, 4320), (3840, 2160)), (3840, 2160));
+        assert_eq!(clamp_size((1920, 1080), (3840, 2160)), (1920, 1080));
+    }
 
     #[cfg(target_os = "linux")]
     #[test]

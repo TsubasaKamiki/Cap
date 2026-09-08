@@ -9,6 +9,7 @@ import callbackTemplate from "~/components/callback.template";
 import { authStore, generalSettingsStore } from "~/store";
 import { identifyUser, trackEvent } from "./analytics";
 import { clientEnv } from "./env";
+import { LOCAL_BUILD } from "./local-build";
 import { shouldUseLocalServerSessionForUrl } from "./server-url-routing";
 import { commands } from "./tauri";
 
@@ -30,6 +31,8 @@ type AuthParams = z.infer<typeof paramsValidator>;
 export function createSignInMutation() {
 	return createMutation(() => ({
 		mutationFn: async (abort: AbortController) => {
+			if (LOCAL_BUILD)
+				throw new Error("本地版无需登录，请使用本地录制和导出。");
 			const session = (await shouldUseLocalServerSession())
 				? await createLocalServerSession(abort.signal)
 				: await createHybridDesktopSession(abort.signal);
