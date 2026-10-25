@@ -89,49 +89,49 @@ type TrackDefinition = {
 const trackDefinitions: TrackDefinition[] = [
 	{
 		type: "clip",
-		label: "Clip",
+		label: "片段",
 		icon: trackIcons.clip,
 		locked: true,
 	},
 	{
 		type: "caption",
-		label: "Captions",
+		label: "字幕",
 		icon: trackIcons.caption,
 		locked: false,
 	},
 	{
 		type: "keyboard",
-		label: "Keyboard",
+		label: "键盘",
 		icon: trackIcons.keyboard,
 		locked: false,
 	},
 	{
 		type: "text",
-		label: "Text",
+		label: "文字",
 		icon: trackIcons.text,
 		locked: false,
 	},
 	{
 		type: "mask",
-		label: "Mask",
+		label: "蒙版",
 		icon: trackIcons.mask,
 		locked: false,
 	},
 	{
 		type: "audio",
-		label: "Audio",
+		label: "音频",
 		icon: trackIcons.audio,
 		locked: false,
 	},
 	{
 		type: "zoom",
-		label: "Zoom",
+		label: "缩放",
 		icon: trackIcons.zoom,
 		locked: true,
 	},
 	{
 		type: "scene",
-		label: "Scene",
+		label: "场景",
 		icon: trackIcons.scene,
 		locked: false,
 	},
@@ -654,7 +654,7 @@ export function Timeline(props: {
 		const menu = await Menu.new({
 			items: [
 				await MenuItem.new({
-					text: `Delete ${type} track`,
+					text: `删除${type}轨道`,
 					action: () => handleDeleteTrackLane(type, laneIndex),
 				}),
 			],
@@ -970,7 +970,7 @@ export function Timeline(props: {
 			return;
 		}
 
-		if (e.code === "Backspace" || (e.code === "Delete" && hasNoModifiers)) {
+		if (e.code === "Backspace" || (e.code === "删除" && hasNoModifiers)) {
 			const selection = editorState.timeline.selection;
 			if (!selection) return;
 
@@ -1063,9 +1063,7 @@ export function Timeline(props: {
 			);
 
 			if (result.segments.length < 1) {
-				toast.error(
-					"No captions were generated. The audio might be too quiet or unclear.",
-				);
+				toast.error("未生成字幕，音频可能太轻或不清晰。");
 				return;
 			}
 
@@ -1082,11 +1080,11 @@ export function Timeline(props: {
 
 			setEditorState("timeline", "tracks", "caption", true);
 			setEditorState("captions", "isStale", false);
-			toast.success("Captions generated successfully!");
+			toast.success("字幕生成成功！");
 		} catch (error) {
 			console.error("Error generating captions:", error);
 			const errorMessage = getCaptionGenerationErrorMessage(error);
-			toast.error(`Failed to generate captions: ${errorMessage}`);
+			toast.error(`无法生成字幕：${errorMessage}`);
 		} finally {
 			setEditorState("captions", "isGenerating", false);
 		}
@@ -1331,7 +1329,7 @@ export function Timeline(props: {
 						}}
 					>
 						<div class="flex flex-col gap-2 min-h-full">
-							<TrackRow icon={trackIcons.clip} label="Video" type="clip">
+							<TrackRow icon={trackIcons.clip} label="视频" type="clip">
 								<ClipTrack
 									ref={setTimelineRef}
 									handleUpdatePlayhead={handleUpdatePlayhead}
@@ -1340,7 +1338,7 @@ export function Timeline(props: {
 							<Show when={captionTrackVisible()}>
 								<TrackRow
 									icon={trackIcons.caption}
-									label="Captions"
+									label="字幕"
 									type="caption"
 									onDelete={() => handleDeleteSingleTrack("caption")}
 								>
@@ -1357,7 +1355,7 @@ export function Timeline(props: {
 							<Show when={keyboardTrackVisible()}>
 								<TrackRow
 									icon={trackIcons.keyboard}
-									label="Keyboard"
+									label="键盘"
 									type="keyboard"
 									onDelete={() => handleDeleteSingleTrack("keyboard")}
 								>
@@ -1373,7 +1371,7 @@ export function Timeline(props: {
 								{(laneIndex) => (
 									<TrackRow
 										icon={trackIcons.text}
-										label="Text"
+										label="文字"
 										type="text"
 										onDelete={() => handleDeleteTrackLane("text", laneIndex)}
 										onContextMenu={(e) =>
@@ -1394,7 +1392,7 @@ export function Timeline(props: {
 								{(laneIndex) => (
 									<TrackRow
 										icon={trackIcons.mask}
-										label="Mask"
+										label="蒙版"
 										type="mask"
 										onDelete={() => handleDeleteTrackLane("mask", laneIndex)}
 										onContextMenu={(e) =>
@@ -1415,7 +1413,7 @@ export function Timeline(props: {
 								{(laneIndex) => (
 									<TrackRow
 										icon={trackIcons.audio}
-										label="Audio"
+										label="音频"
 										type="audio"
 										onDelete={() => handleDeleteTrackLane("audio", laneIndex)}
 										onContextMenu={(e) =>
@@ -1435,7 +1433,7 @@ export function Timeline(props: {
 							</For>
 							<TrackRow
 								icon={trackIcons.zoom}
-								label="Zoom"
+								label="缩放"
 								type="zoom"
 								onDelete={
 									(project.timeline?.zoomSegments?.length ?? 0) > 0
@@ -1476,7 +1474,7 @@ export function Timeline(props: {
 							<Show when={sceneTrackVisible()}>
 								<TrackRow
 									icon={trackIcons.scene}
-									label="Scene"
+									label="场景"
 									type="scene"
 									onDelete={
 										(project.timeline?.sceneSegments?.length ?? 0) > 0
@@ -1535,11 +1533,11 @@ function TrackRow(props: {
 							props.onDelete?.();
 						}}
 						onMouseDown={(e) => e.stopPropagation()}
-						title={props.deleteTitle ?? "Delete track"}
+						title={props.deleteTitle ?? "删除轨道"}
 					>
 						<IconCapTrash class="size-4" />
 						<span class="text-[0.625rem] leading-none font-medium">
-							{props.deleteLabel ?? "Delete"}
+							{props.deleteLabel ?? "删除"}
 						</span>
 					</button>
 				</Show>

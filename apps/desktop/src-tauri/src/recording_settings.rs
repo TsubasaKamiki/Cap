@@ -54,8 +54,13 @@ impl RecordingSettingsStore {
 
     pub fn get(app: &AppHandle<Wry>) -> Result<Option<Self>, String> {
         match app.store("store").map(|s| s.get(Self::KEY)) {
-            Ok(Some(store)) => match serde_json::from_value(store) {
-                Ok(settings) => Ok(Some(settings)),
+            Ok(Some(store)) => match serde_json::from_value::<Self>(store) {
+                Ok(mut settings) => {
+                    if crate::LOCAL_ONLY && settings.mode == Some(RecordingMode::Instant) {
+                        settings.mode = Some(RecordingMode::Studio);
+                    }
+                    Ok(Some(settings))
+                }
                 Err(e) => Err(format!(
                     "Failed to deserialize recording settings store: {e}"
                 )),
@@ -68,7 +73,11 @@ impl RecordingSettingsStore {
         let store = app.store("store").map_err(|e| e.to_string())?;
 
         let mut settings = Self::get(app)?.unwrap_or_default();
-        settings.mode = Some(mode);
+        settings.mode = Some(if crate::LOCAL_ONLY && mode == RecordingMode::Instant {
+            RecordingMode::Studio
+        } else {
+            mode
+        });
 
         store.set(Self::KEY, serde_json::json!(settings));
         store.save().map_err(|e| e.to_string())

@@ -25,7 +25,7 @@ pub enum PanelWindowType {
 impl std::fmt::Display for PanelWindowType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Camera => write!(f, "Camera"),
+            Self::Camera => write!(f, "摄像头"),
         }
     }
 }

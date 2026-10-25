@@ -102,18 +102,18 @@ impl MainWindowRecordingStartBehaviour {
     }
 }
 
-// NOTE: Do not add "Cap Target Select" here — on Windows, WDA_EXCLUDEFROMCAPTURE applied to that
+// NOTE: Do not add "Cap 目标选择" here — on Windows, WDA_EXCLUDEFROMCAPTURE applied to that
 // hidden window causes it to reappear as a ghost overlay after recording ends.
 const DEFAULT_EXCLUDED_WINDOW_TITLES: &[&str] = &[
     "Cap",
-    "Cap Settings",
-    "Cap Recording Controls",
-    "Cap Camera",
-    "Cap Window Capture Occluder",
-    "Cap Capture Area",
-    "Cap Mode Selection",
-    "Cap Recordings Overlay",
-    "Cap Teleprompter",
+    "Cap 设置",
+    "Cap 录制控制栏",
+    "Cap 摄像头",
+    "Cap 窗口遮挡层",
+    "Cap 录制区域",
+    "Cap 模式选择",
+    "Cap 录制浮层",
+    "Cap 提词器",
 ];
 
 pub fn default_excluded_windows() -> Vec<WindowExclusion> {
@@ -220,6 +220,8 @@ pub struct GeneralSettingsStore {
     pub crash_recovery_recording: bool,
     #[serde(default = "default_max_fps")]
     pub max_fps: u32,
+    #[serde(default = "default_recording_resolution")]
+    pub recording_resolution: u32,
     #[serde(default = "default_transcription_hints")]
     pub transcription_hints: Vec<String>,
     #[serde(default)]
@@ -275,6 +277,10 @@ fn default_instant_mode_max_resolution() -> u32 {
     cap_recording::DEFAULT_INSTANT_MODE_MAX_RESOLUTION
 }
 
+fn default_recording_resolution() -> u32 {
+    2160
+}
+
 fn default_max_fps() -> u32 {
     cap_recording::DEFAULT_STUDIO_MAX_FPS
 }
@@ -295,7 +301,7 @@ fn default_transcription_hints() -> Vec<String> {
     vec![
         "Cap".to_string(),
         "TypeScript".to_string(),
-        "My Brand Name".to_string(),
+        "我的品牌名称".to_string(),
         "mywebsite.com".to_string(),
     ]
 }
@@ -345,9 +351,10 @@ impl Default for GeneralSettingsStore {
             excluded_windows: default_excluded_windows(),
             delete_instant_recordings_after_upload: false,
             instant_mode_max_resolution: cap_recording::DEFAULT_INSTANT_MODE_MAX_RESOLUTION,
-            default_project_name_template: None,
+            default_project_name_template: Some("录制 {date} {time}".into()),
             crash_recovery_recording: cap_recording::DEFAULT_CRASH_RECOVERY_RECORDING,
             max_fps: cap_recording::DEFAULT_STUDIO_MAX_FPS,
+            recording_resolution: default_recording_resolution(),
             transcription_hints: default_transcription_hints(),
             editor_preview_quality: EditorPreviewQuality::Half,
             studio_recording_quality: default_studio_recording_quality(),
@@ -355,7 +362,7 @@ impl Default for GeneralSettingsStore {
             camera_window_position: None,
             camera_window_positions_by_monitor_name: BTreeMap::new(),
             has_completed_onboarding: false,
-            enable_telemetry: true,
+            enable_telemetry: false,
             out_of_process_muxer: cap_recording::DEFAULT_OUT_OF_PROCESS_MUXER,
             recordings_path: None,
             previous_recordings_paths: Vec::new(),
@@ -517,7 +524,7 @@ pub fn init(app: &AppHandle) {
     {
         store
             .excluded_windows
-            .retain(|w| w.window_title.as_deref() != Some("Cap Target Select"));
+            .retain(|w| w.window_title.as_deref() != Some("Cap 目标选择"));
         raw_store.set(REMOVE_TARGET_SELECT_MIGRATION_KEY, json!(true));
     }
 
@@ -610,7 +617,7 @@ mod tests {
             title_exclusion("Cap"),
             WindowExclusion {
                 bundle_identifier: None,
-                owner_name: Some("Preview".to_string()),
+                owner_name: Some("预览".to_string()),
                 window_title: Some("Private Preview".to_string()),
             },
         ];

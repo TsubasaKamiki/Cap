@@ -1,3 +1,4 @@
+import { localRecordingMode } from "./local-build";
 import { createEventListener } from "@solid-primitives/event-listener";
 import { makePersisted } from "@solid-primitives/storage";
 import {
@@ -233,7 +234,10 @@ export function createOptionsQuery() {
 		}
 	});
 
-	let initialized = false;
+	createEffect(() => {
+  if (_state.mode === "instant") _setState("mode", localRecordingMode(_state.mode));
+ });
+ let initialized = false;
 
 	recordingSettingsStore.get().then((data) => {
 		batch(() => {
@@ -251,7 +255,7 @@ export function createOptionsQuery() {
 				_setState("cameraID", reconcile(data.cameraId));
 			}
 			if (data?.mode && data.mode !== _state.mode) {
-				_setState("mode", data.mode);
+				_setState("mode", localRecordingMode(data.mode));
 			}
 			if (data?.systemAudio !== undefined) {
 				_setState("captureSystemAudio", data.systemAudio);
@@ -280,7 +284,7 @@ export function createOptionsQuery() {
 
 	const storeListenerCleanup = recordingSettingsStore.listen((data) => {
 		if (data?.mode && data.mode !== _state.mode) {
-			_setState("mode", data.mode);
+			_setState("mode", localRecordingMode(data.mode));
 		}
 	});
 	onCleanup(() => storeListenerCleanup.then((c) => c()));

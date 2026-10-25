@@ -12,7 +12,7 @@ function formatDuration(secs: number): string {
 	if (remainingSecs === 0) {
 		return `${mins}m`;
 	}
-	return `${mins}m ${remainingSecs}s`;
+	return `${mins} 分 ${remainingSecs} 秒`;
 }
 
 const RECOVERY_CHECK_DELAY_MS = 2000;
@@ -77,9 +77,7 @@ export function RecoveryToast() {
 				<div class="absolute bottom-3 left-3 right-3 bg-red-2 border border-red-6 rounded-lg p-2.5 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-200">
 					<div class="flex items-center gap-2">
 						<div class="flex-1 min-w-0">
-							<p class="text-red-11 text-[10px] font-medium">
-								Incomplete Recording
-							</p>
+							<p class="text-red-11 text-[10px] font-medium">未完成的录制</p>
 							<p class="text-gray-12 text-xs font-medium truncate">
 								{rec().prettyName}
 							</p>
@@ -94,7 +92,7 @@ export function RecoveryToast() {
 										const e = error();
 										if (e instanceof Error) return e.message;
 										if (typeof e === "string") return e;
-										return "Recovery failed. The recording may be corrupted.";
+										return "恢复失败，录制文件可能已损坏。";
 									};
 									return (
 										<p class="text-red-11 text-[10px] mt-1">{errorMessage()}</p>
@@ -109,7 +107,7 @@ export function RecoveryToast() {
 								variant="primary"
 								size="xs"
 							>
-								{recoverMutation.isPending ? "..." : "Recover"}
+								{recoverMutation.isPending ? "..." : "恢复"}
 							</Button>
 							<Button
 								onClick={() => discardMutation.mutate(rec().projectPath)}
@@ -117,7 +115,7 @@ export function RecoveryToast() {
 								variant="gray"
 								size="xs"
 							>
-								Discard
+								丢弃
 							</Button>
 						</div>
 					</div>

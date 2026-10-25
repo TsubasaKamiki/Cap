@@ -307,9 +307,9 @@ export function TextTrack(props: {
 						fallback={<div class="w-full rounded-xl bg-transparent" />}
 					>
 						<div class="text-center text-sm text-(--text-tertiary) flex flex-col justify-center items-center inset-0 w-full bg-gray-3/20 dark:bg-gray-3/10 hover:bg-gray-3/30 dark:hover:bg-gray-3/20 transition-colors rounded-xl pointer-events-none">
-							<div>Click to add text</div>
+							<div>点击添加文字</div>
 							<div class="text-[10px] text-(--text-tertiary)/40 mt-0.5">
-								(Set a label over your video)
+								（在视频上叠加标签）
 							</div>
 						</div>
 					</Show>
@@ -342,15 +342,15 @@ export function TextTrack(props: {
 									"font-weight": segment.fontWeight ?? 700,
 								}}
 							>
-								{segment.content || "Label"}
+								{segment.content || "标签"}
 							</span>
 						</div>
 					);
 
 					const textTitle = () => {
-						const base = `Text · ${segment.content || "Label"}`;
+						const base = `文字 · ${segment.content || "标签"}`;
 						return segment.layout === "fullscreen"
-							? `${base} · Fullscreen: pauses the video while shown`
+							? `${base} · 全屏：显示时暂停视频`
 							: base;
 					};
 
@@ -460,7 +460,7 @@ export function TextTrack(props: {
 									full={() => (
 										<div class="flex flex-col gap-0.5 justify-center items-center text-xs text-gray-1 dark:text-gray-12">
 											<span class="flex gap-1 items-center opacity-70">
-												Text
+												文字
 												<Show when={segment.layout === "fullscreen"}>
 													<IconLucidePause class="size-2.5" />
 												</Show>

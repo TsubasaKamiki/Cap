@@ -145,9 +145,9 @@ export function KeyboardTrack(props: {
 				each={keyboardSegments()}
 				fallback={
 					<div class="text-center text-sm text-(--text-tertiary) flex flex-col justify-center items-center inset-0 w-full bg-gray-3/20 dark:bg-gray-3/10 rounded-xl pointer-events-none">
-						<div>No keyboard events</div>
+						<div>没有按键记录</div>
 						<div class="text-[10px] text-(--text-tertiary)/40 mt-0.5">
-							Record keyboard presses or generate from recording
+							录制按键或从录制中生成
 						</div>
 					</div>
 				}
@@ -182,7 +182,7 @@ export function KeyboardTrack(props: {
 								isSelected() ? "border-sky-7" : "border-transparent",
 							)}
 							innerClass="ring-sky-6"
-							title={segment.displayText || "Keyboard"}
+							title={segment.displayText || "键盘"}
 							segment={{
 								start: segment.start,
 								end: Math.min(segment.end, totalDuration()),

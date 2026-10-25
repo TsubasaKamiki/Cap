@@ -38,6 +38,9 @@ pub struct Plan {
 
 impl AuthStore {
     pub fn load<R: Runtime>(app: &AppHandle<R>) -> Result<Option<Self>, String> {
+        if crate::LOCAL_ONLY {
+            return Ok(None);
+        }
         let Some(store) = app
             .store("store")
             .map(|s| s.get("auth"))
@@ -50,6 +53,9 @@ impl AuthStore {
     }
 
     pub fn get<R: Runtime>(app: &AppHandle<R>) -> Result<Option<Self>, String> {
+        if crate::LOCAL_ONLY {
+            return Ok(None);
+        }
         let Ok(Some(store)) = app.store("store").map(|s| s.get("auth")) else {
             return Ok(None);
         };

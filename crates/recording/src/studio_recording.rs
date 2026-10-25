@@ -52,6 +52,15 @@ const COMPATIBILITY_CAMERA_ACTIVE_MAX_SCREEN_HEIGHT: u32 = 1000;
 const UNCONFIRMED_CAPTURE_CLEANUP: &str =
     "Studio capture cleanup is unconfirmed; local recording preserved";
 
+pub fn recording_resolution_size(height: u32) -> (u32, u32) {
+    match height {
+        720 => (1280, 720),
+        1080 => (1920, 1080),
+        1440 => (2560, 1440),
+        _ => (3840, 2160),
+    }
+}
+
 fn camera_active_max_capture_size(
     quality: crate::StudioQuality,
     camera_active: bool,
@@ -1905,6 +1914,7 @@ impl Actor {
 }
 
 pub struct ActorBuilder {
+    max_capture_size: Option<(u32, u32)>,
     #[cfg(target_os = "linux")]
     lifetime: StudioLifetimeOwner,
     output_path: PathBuf,
@@ -1925,6 +1935,7 @@ pub struct ActorBuilder {
 impl ActorBuilder {
     pub fn new(output: PathBuf, capture_target: screen_capture::ScreenCaptureTarget) -> Self {
         Self {
+            max_capture_size: None,
             #[cfg(target_os = "linux")]
             lifetime: StudioLifetimeOwner {
                 lifecycle: StudioLifecycle::new(),
@@ -1981,6 +1992,11 @@ impl ActorBuilder {
         self
     }
 
+    pub fn with_capture_resolution(mut self, height: u32) -> Self {
+        self.max_capture_size = Some(recording_resolution_size(height));
+        self
+    }
+
     pub fn with_max_fps(mut self, max_fps: u32) -> Self {
         self.max_fps = max_fps.clamp(1, 120);
         self
@@ -2019,6 +2035,7 @@ impl ActorBuilder {
             self.lifetime,
             self.output_path,
             RecordingBaseInputs {
+                max_capture_size: self.max_capture_size,
                 capture_target: self.capture_target,
                 capture_system_audio: self.system_audio,
                 mic_feed: self.mic_feed,
@@ -2865,7 +2882,9 @@ async fn create_segment_pipeline(
         let (display, crop) =
             target_to_display_and_crop(&capture_target).context("target_display_crop")?;
         let compatibility_quality = matches!(quality, crate::StudioQuality::Compatibility);
-        let max_capture_size = camera_active_max_capture_size(quality, camera_active);
+        let max_capture_size = base_inputs
+            .max_capture_size
+            .or_else(|| camera_active_max_capture_size(quality, camera_active));
         let effective_max_fps = if compatibility_quality && camera_active {
             max_fps.min(24)
         } else {
@@ -3261,6 +3280,7 @@ mod tests {
             path.join("content/segments"),
             path.join("content/cursors"),
             RecordingBaseInputs {
+                max_capture_size: None,
                 capture_target: target.clone(),
                 capture_system_audio: false,
                 mic_feed: None,
@@ -3357,6 +3377,7 @@ mod tests {
             path.join("content/segments"),
             path.join("content/cursors"),
             RecordingBaseInputs {
+                max_capture_size: None,
                 capture_target: target.clone(),
                 capture_system_audio: false,
                 mic_feed: None,
@@ -3491,6 +3512,7 @@ mod tests {
                 path.join("content/segments"),
                 path.join("content/cursors"),
                 RecordingBaseInputs {
+                    max_capture_size: None,
                     capture_target: target.clone(),
                     capture_system_audio: false,
                     mic_feed: None,
@@ -4513,6 +4535,18 @@ mod tests {
     }
 
     #[test]
+    fn recording_resolution_and_fps_reach_studio_builder() {
+        let builder = ActorBuilder::new(
+            PathBuf::new(),
+            screen_capture::ScreenCaptureTarget::CameraOnly,
+        )
+        .with_capture_resolution(1080)
+        .with_max_fps(25);
+        assert_eq!(builder.max_capture_size, Some((1920, 1080)));
+        assert_eq!(builder.max_fps, 25);
+    }
+
+    #[test]
     fn camera_active_capture_size_leaves_non_compatibility_native() {
         for quality in [crate::StudioQuality::Balanced, crate::StudioQuality::Ultra] {
             assert!(camera_active_max_capture_size(quality, true).is_none());
@@ -4984,6 +5018,7 @@ mod tests {
             recording_dir.join("content/segments"),
             recording_dir.join("content/cursors"),
             RecordingBaseInputs {
+                max_capture_size: None,
                 capture_target: screen_capture::ScreenCaptureTarget::CameraOnly,
                 capture_system_audio: false,
                 mic_feed: None,
@@ -5228,6 +5263,7 @@ mod windows_cancel_tests {
             PathBuf::new(),
             PathBuf::new(),
             RecordingBaseInputs {
+                max_capture_size: None,
                 capture_target: screen_capture::ScreenCaptureTarget::CameraOnly,
                 capture_system_audio: false,
                 mic_feed: None,

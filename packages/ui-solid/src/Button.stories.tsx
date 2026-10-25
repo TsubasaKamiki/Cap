@@ -17,7 +17,7 @@ export const _Button: Story = {
 
 		return (
 			<>
-				<label for="size">Size</label>
+				<label for="size">大小</label>
 				<select
 					value={size()}
 					onChange={(e) => setSize(e.target.value as ButtonSize)}
@@ -30,44 +30,44 @@ export const _Button: Story = {
 					<thead>
 						<tr>
 							<th />
-							<th>Primary</th>
-							<th>Secondary</th>
-							<th>Destructive</th>
+							<th>主色</th>
+							<th>辅色</th>
+							<th>危险操作</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<th>Default</th>
+							<th>默认</th>
 							<td>
 								<Button variant="primary" size={size()}>
-									Button
+									按钮
 								</Button>
 							</td>
 							<td>
 								<Button variant="gray" size={size()}>
-									Button
+									按钮
 								</Button>
 							</td>
 							<td>
 								<Button variant="destructive" size={size()}>
-									Button
+									按钮
 								</Button>
 							</td>
 						</tr>
 						<tr>
-							<th>Hover</th>
+							<th>悬停</th>
 							<td>
 								<Button
 									variant="primary"
 									size={size()}
 									class="sb-pseudo--hover"
 								>
-									Button
+									按钮
 								</Button>
 							</td>
 							<td>
 								<Button variant="gray" size={size()} class="sb-pseudo--hover">
-									Button
+									按钮
 								</Button>
 							</td>
 							<td>
@@ -76,25 +76,25 @@ export const _Button: Story = {
 									size={size()}
 									class="sb-pseudo--hover"
 								>
-									Button
+									按钮
 								</Button>
 							</td>
 						</tr>
 						<tr>
-							<th>Disabled</th>
+							<th>已禁用</th>
 							<td>
 								<Button variant="primary" size={size()} disabled>
-									Button
+									按钮
 								</Button>
 							</td>
 							<td>
 								<Button variant="gray" size={size()} disabled>
-									Button
+									按钮
 								</Button>
 							</td>
 							<td>
 								<Button variant="destructive" size={size()} disabled>
-									Button
+									按钮
 								</Button>
 							</td>
 						</tr>

@@ -25,8 +25,8 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function fontFamily(font: string) {
-	if (font === "System Serif") return "serif";
-	if (font === "System Monospace") return "monospace";
+	if (font === "系统衬线字体") return "serif";
+	if (font === "系统等宽字体") return "monospace";
 	return "system-ui, sans-serif";
 }
 

@@ -7,6 +7,7 @@ import {
 	RECORDING_START_SAFETY_DEFAULTS,
 	type RecordingStartSafetySettings,
 } from "~/utils/general-settings";
+import { LOCAL_BUILD } from "~/utils/local-build";
 import { createSerializedStore } from "~/utils/serialized-store";
 import type {
 	AnimatedGradientLibrary,
@@ -63,12 +64,15 @@ function declareStore<T extends object>(name: string, defaults?: T) {
 	const withDefaults = (value?: T) =>
 		defaults ? { ...defaults, ...(value ?? {}) } : value;
 	const get = async () => {
+		if (LOCAL_BUILD && name === "auth") return undefined;
 		const s = await store();
 		return withDefaults(await s.get<T>(name));
 	};
 	const listen = (fn: (data?: T | undefined) => void) =>
 		store().then((s) =>
-			s.onKeyChange<T>(name, (data) => fn(withDefaults(data))),
+			s.onKeyChange<T>(name, (data) =>
+				fn(LOCAL_BUILD && name === "auth" ? undefined : withDefaults(data)),
+			),
 		);
 
 	return {

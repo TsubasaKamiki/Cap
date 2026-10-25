@@ -56,9 +56,7 @@ export function EditorErrorScreen(props: {
 							<IconAlertTriangle class="size-8 text-red-9" />
 						</div>
 						<h2 class="text-xl font-semibold text-gray-12">
-							{needsRecovery()
-								? "Recording Needs Recovery"
-								: "Unable to Open Recording"}
+							{needsRecovery() ? "录制需要恢复" : "无法打开录制"}
 						</h2>
 						<p class="text-sm text-gray-11">{props.error}</p>
 					</div>
@@ -66,12 +64,9 @@ export function EditorErrorScreen(props: {
 					<Show when={needsRecovery()}>
 						<div class="bg-gray-2 border border-gray-4 rounded-xl p-4 space-y-4">
 							<div class="space-y-2">
-								<h3 class="font-medium text-gray-12 text-sm">
-									Automatic Recovery
-								</h3>
+								<h3 class="font-medium text-gray-12 text-sm">自动恢复</h3>
 								<p class="text-xs text-gray-11">
-									Cap can attempt to recover your recording automatically. This
-									will reconstruct the recording from available segment data.
+									Cap 可以尝试使用可用分片自动重建并恢复录制。
 								</p>
 							</div>
 
@@ -86,19 +81,19 @@ export function EditorErrorScreen(props: {
 									fallback={
 										<>
 											<IconRefreshCw class="size-4 mr-2" />
-											Recover Recording
+											恢复录制
 										</>
 									}
 								>
 									<IconLoaderCircle class="size-4 mr-2 animate-spin" />
-									Recovering...
+									正在恢复…
 								</Show>
 							</Button>
 
 							<Show when={recoverMutation.error}>
 								<div class="bg-red-2 border border-red-6 rounded-lg p-3">
 									<p class="text-red-11 text-xs">
-										Recovery failed:{" "}
+										恢复失败：{" "}
 										{recoverMutation.error instanceof Error
 											? recoverMutation.error.message
 											: String(recoverMutation.error)}
@@ -110,12 +105,9 @@ export function EditorErrorScreen(props: {
 
 					<div class="bg-gray-2 border border-gray-4 rounded-xl p-4 space-y-4">
 						<div class="space-y-2">
-							<h3 class="font-medium text-gray-12 text-sm">
-								Manual Investigation
-							</h3>
+							<h3 class="font-medium text-gray-12 text-sm">手动检查</h3>
 							<p class="text-xs text-gray-11">
-								You can open the recording folder to inspect the raw files
-								directly.
+								可以打开录制文件夹，直接检查原始文件。
 							</p>
 
 							<div class="bg-gray-3 rounded-lg p-3 space-y-2">
@@ -141,7 +133,7 @@ export function EditorErrorScreen(props: {
 
 						<Button onClick={handleOpenFolder} variant="outline" class="w-full">
 							<IconFolder class="size-4 mr-2" />
-							Open Folder
+							打开文件夹
 						</Button>
 					</div>
 
@@ -151,7 +143,7 @@ export function EditorErrorScreen(props: {
 							onClick={() => window.close()}
 							class="text-sm text-gray-10 hover:text-gray-11 transition-colors"
 						>
-							Close Window
+							关闭窗口
 						</button>
 					</div>
 				</div>

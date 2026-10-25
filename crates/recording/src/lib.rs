@@ -79,6 +79,7 @@ pub struct RecordingOptions {
 
 #[derive(Clone)]
 pub struct RecordingBaseInputs {
+    pub max_capture_size: Option<(u32, u32)>,
     pub capture_target: ScreenCaptureTarget,
     pub capture_system_audio: bool,
     pub mic_feed: Option<Arc<MicrophoneFeedLock>>,

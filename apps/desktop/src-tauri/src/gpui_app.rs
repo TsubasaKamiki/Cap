@@ -885,6 +885,9 @@ pub(crate) fn retire_foreground_parent_for_handoff(app: &AppHandle) {
 #[tauri::command]
 #[specta::specta]
 pub async fn gpui_app_available(app: AppHandle) -> bool {
+    if crate::LOCAL_ONLY {
+        return false;
+    }
     binary_path(&app).is_some()
 }
 
@@ -894,6 +897,9 @@ pub async fn gpui_app_available(app: AppHandle) -> bool {
 #[tauri::command]
 #[specta::specta]
 pub async fn switch_to_gpui_app(app: AppHandle) -> Result<(), String> {
+    if crate::LOCAL_ONLY {
+        return Err("本地版使用内置录制界面。".into());
+    }
     let path =
         binary_path(&app).ok_or_else(|| "Cap GPUI isn't included in this build".to_string())?;
     crate::prepare_app_exit(&app, || {
@@ -988,6 +994,9 @@ pub fn redirect_at_startup_if_enabled(app: &AppHandle) -> Result<bool, String> {
 }
 
 fn redirect_decision(app: &AppHandle) -> Result<bool, String> {
+    if crate::LOCAL_ONLY {
+        return Ok(false);
+    }
     let own = GeneralSettingsStore::get(app)
         .ok()
         .flatten()

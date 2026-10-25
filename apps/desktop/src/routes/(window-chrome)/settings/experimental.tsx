@@ -20,10 +20,10 @@ import {
 // The mirror of this sequence lives in `render_switch_overlay` in the native
 // app's `settings_pages.rs`.
 const SWITCH_SENTENCES = [
-	"Switching to the native Cap app.",
-	"It will look almost identical. That is the point.",
-	"Same Cap, rebuilt fully native for performance.",
-	"Experimental. Your recordings and settings come with you.",
+	"正在切换到原生 Cap 应用。",
+	"界面基本保持一致，使用习惯无需改变。",
+	"相同的 Cap，使用原生技术重新构建以提升性能。",
+	"实验性功能。你的录制和设置会一起保留。",
 ];
 const SENTENCE_MS = 1300;
 const COUNTDOWN_FROM = 5;
@@ -158,11 +158,11 @@ function Inner(props: {
 		<div class="cap-settings-page flex flex-col h-full custom-scroll">
 			<SettingsPageContent>
 				<Show when={props.osType === "macos"}>
-					<Section title="Preview">
+					<Section title="预览">
 						<SectionRows>
 							<ToggleSettingItem
-								label="Native camera preview"
-								description="Render the camera preview using a native GPU surface instead of through the webview. Experimental and off by default."
+								label="原生摄像头预览"
+								description="通过原生 GPU 表面渲染摄像头预览。此实验性功能默认关闭。"
 								value={!!settings.enableNativeCameraPreview}
 								onChange={(value) =>
 									handleChange("enableNativeCameraPreview", value)
@@ -172,11 +172,11 @@ function Inner(props: {
 					</Section>
 				</Show>
 
-				<Section title="Reliability">
+				<Section title="稳定性">
 					<SectionRows>
 						<ToggleSettingItem
-							label="Out-of-process muxer"
-							description="Run the fragmented-MP4 muxer in an isolated subprocess so muxer crashes can't take down your recording. Requires the bundled cap-muxer binary."
+							label="独立进程封装器"
+							description="在独立子进程中封装分片 MP4，避免封装器崩溃导致录制中断。需要附带的 cap-muxer 程序。"
 							value={!!settings.outOfProcessMuxer}
 							onChange={(value) => handleChange("outOfProcessMuxer", value)}
 						/>
@@ -184,11 +184,11 @@ function Inner(props: {
 				</Section>
 
 				<Show when={gpuiAvailable()}>
-					<Section title="Native app">
+					<Section title="原生应用">
 						<SectionRows>
 							<ToggleSettingItem
 								label="Cap GPUI"
-								description="Close this app and reopen the experimental fully-native version of Cap. It is unfinished, so expect missing features. Your recordings and settings are shared, and you can switch back from its Experimental settings."
+								description="关闭当前应用并打开实验性的全原生 Cap。该版本尚未完成，可能缺少部分功能。录制与设置共享，可在其“实验性功能”设置中切换回来。"
 								value={!!settings.enableGpuiApp || takeoverActive()}
 								onChange={(value) => {
 									if (value) startTakeover();
@@ -244,7 +244,7 @@ function Inner(props: {
 							class="rounded-lg border border-white/25 px-4 py-2 text-sm text-white transition-colors hover:bg-white/10"
 							onClick={cancelTakeover}
 						>
-							Cancel
+							取消
 						</button>
 					</div>
 				)}

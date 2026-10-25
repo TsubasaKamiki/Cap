@@ -20,58 +20,28 @@ pub enum NotificationType {
 impl NotificationType {
     fn details(&self) -> (&'static str, &'static str, bool) {
         match self {
-            NotificationType::VideoSaved => ("Video Saved", "Video saved successfully", false),
-            NotificationType::VideoCopiedToClipboard => {
-                ("Video Copied", "Video copied to clipboard", false)
-            }
-            NotificationType::ShareableLinkCopied => {
-                ("Link Copied", "Link copied to clipboard", false)
-            }
-            NotificationType::UploadFailed => (
-                "Upload Failed",
-                "Unable to upload media. Please try again",
-                true,
-            ),
-            NotificationType::VideoSaveFailed => (
-                "Save Failed",
-                "Unable to save video. Please try again",
-                true,
-            ),
-            NotificationType::VideoCopyFailed => (
-                "Copy Failed",
-                "Unable to copy video to clipboard. Please try again",
-                true,
-            ),
-            NotificationType::ShareableLinkFailed => (
-                "Share Failed",
-                "Unable to create shareable link. Please try again",
-                true,
-            ),
-            NotificationType::ScreenshotSaved => {
-                ("Screenshot Saved", "Screenshot saved successfully", false)
-            }
+            NotificationType::VideoSaved => ("视频已保存", "视频保存成功", false),
+            NotificationType::VideoCopiedToClipboard => ("视频已复制", "视频已复制到剪贴板", false),
+            NotificationType::ShareableLinkCopied => ("链接已复制", "链接已复制到剪贴板", false),
+            NotificationType::UploadFailed => ("上传失败", "无法上传媒体，请重试", true),
+            NotificationType::VideoSaveFailed => ("保存失败", "无法保存视频，请重试", true),
+            NotificationType::VideoCopyFailed => ("复制失败", "无法复制视频到剪贴板，请重试", true),
+            NotificationType::ShareableLinkFailed => ("分享失败", "无法创建分享链接，请重试", true),
+            NotificationType::ScreenshotSaved => ("截图已保存", "截图保存成功", false),
             NotificationType::ScreenshotCopiedToClipboard => {
-                ("Screenshot Copied", "Screenshot copied to clipboard", false)
+                ("截图已复制", "截图已复制到剪贴板", false)
             }
-            NotificationType::ScreenshotSaveFailed => (
-                "Save Failed",
-                "Unable to save screenshot. Please try again",
-                true,
-            ),
-            NotificationType::ScreenshotCopyFailed => (
-                "Copy Failed",
-                "Unable to copy screenshot to clipboard. Please try again",
-                true,
-            ),
+            NotificationType::ScreenshotSaveFailed => ("保存失败", "无法保存截图，请重试", true),
+            NotificationType::ScreenshotCopyFailed => {
+                ("复制失败", "无法复制截图到剪贴板，请重试", true)
+            }
         }
     }
 
     #[allow(unused)]
     pub fn message(&self) -> &'static str {
         match self {
-            NotificationType::UploadFailed => {
-                "Failed to upload your video after multiple attempts. Please try again later."
-            }
+            NotificationType::UploadFailed => "多次尝试后仍无法上传视频，请稍后重试。",
             _ => "",
         }
     }
@@ -79,7 +49,7 @@ impl NotificationType {
     #[allow(unused)]
     pub fn title(&self) -> &'static str {
         match self {
-            NotificationType::UploadFailed => "Upload Failed",
+            NotificationType::UploadFailed => "上传失败",
             _ => "",
         }
     }
@@ -150,10 +120,10 @@ mod tests {
 
     #[test]
     fn linux_notification_preserves_content_and_application_icon() {
-        let notification = build_linux_notification("Screenshot Saved", "Saved successfully");
+        let notification = build_linux_notification("截图已保存", "保存成功");
 
-        assert_eq!(notification.summary, "Screenshot Saved");
-        assert_eq!(notification.body, "Saved successfully");
+        assert_eq!(notification.summary, "截图已保存");
+        assert_eq!(notification.body, "保存成功");
         assert_eq!(notification.icon, notification.appname);
         assert!(!notification.icon.is_empty());
     }

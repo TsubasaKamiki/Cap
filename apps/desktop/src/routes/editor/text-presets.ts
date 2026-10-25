@@ -27,8 +27,8 @@ export type TextPreset = {
 export const TEXT_PRESETS: TextPreset[] = [
 	{
 		id: "title",
-		name: "Title",
-		sample: "Big Title",
+		name: "标题",
+		sample: "大标题",
 		style: {
 			fontStack: ["Helvetica Neue", "Segoe UI", "Inter", "sans-serif"],
 			fontSize: 96,
@@ -46,7 +46,7 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "subtitle",
-		name: "Subtitle",
+		name: "副标题",
 		sample: "A calmer supporting line",
 		style: {
 			fontStack: ["Helvetica Neue", "Segoe UI", "Inter", "sans-serif"],
@@ -65,8 +65,8 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "lower-third",
-		name: "Lower Third",
-		sample: "Name / Context",
+		name: "下三分之一字幕",
+		sample: "姓名 / 说明",
 		center: { x: 0.22, y: 0.85 },
 		style: {
 			fontStack: ["Helvetica Neue", "Segoe UI", "Inter", "sans-serif"],
@@ -85,7 +85,7 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "kicker",
-		name: "Kicker",
+		name: "引题",
 		sample: "NEW FEATURE",
 		style: {
 			fontStack: ["Helvetica Neue", "Segoe UI", "Inter", "sans-serif"],
@@ -104,7 +104,7 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "stat",
-		name: "Big Stat",
+		name: "醒目数据",
 		sample: "128%",
 		style: {
 			fontStack: ["Helvetica Neue", "Segoe UI", "Inter", "sans-serif"],
@@ -123,7 +123,7 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "quote",
-		name: "Quote",
+		name: "引用",
 		sample: "“Make it feel effortless”",
 		style: {
 			fontStack: ["Georgia", "Times New Roman", "serif"],
@@ -142,7 +142,7 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "code",
-		name: "Code",
+		name: "代码",
 		sample: "$ cap record",
 		style: {
 			fontStack: ["Menlo", "Consolas", "monospace"],
@@ -161,7 +161,7 @@ export const TEXT_PRESETS: TextPreset[] = [
 	},
 	{
 		id: "typewriter",
-		name: "Typewriter",
+		name: "打字机",
 		sample: "typing it out…",
 		style: {
 			fontStack: ["Menlo", "Consolas", "monospace"],

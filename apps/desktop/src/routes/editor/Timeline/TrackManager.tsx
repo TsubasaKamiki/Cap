@@ -22,39 +22,39 @@ type TrackMeta = {
 
 const TRACK_META: Record<TimelineTrackType, TrackMeta> = {
 	clip: {
-		description: "Your recorded screen footage.",
+		description: "已录制的屏幕画面。",
 		unavailableHint: "",
 	},
 	zoom: {
-		description: "Smooth zoom-ins that follow the action.",
+		description: "平滑缩放，跟随操作重点。",
 		unavailableHint: "",
 	},
 	caption: {
-		description: "Auto-transcribe your recording into on-screen subtitles.",
+		description: "自动将录音转为画面字幕。",
 		unavailableHint: "",
 	},
 	keyboard: {
-		description: "Display key presses on screen as you type.",
+		description: "输入时在屏幕上显示按键。",
 		unavailableHint: "",
 	},
 	text: {
-		description: "Add custom text overlays and titles to the canvas.",
+		description: "在画布上添加自定义文字和标题。",
 		unavailableHint: "",
 	},
 	mask: {
-		description: "Blur or black out private areas of the screen.",
+		description: "模糊或遮黑屏幕中的隐私区域。",
 		unavailableHint: "",
 	},
 	audio: {
-		description: "Add background music or import your own audio.",
+		description: "添加背景音乐或导入自己的音频。",
 		unavailableHint: "",
 	},
 	scene: {
-		description: "Switch layouts between your screen and camera.",
-		unavailableHint: "Record with a camera to use scenes.",
+		description: "切换屏幕与摄像头布局。",
+		unavailableHint: "录制摄像头后即可使用场景。",
 	},
 	"3d": {
-		description: "Tilt the scene in 3D perspective.",
+		description: "以 3D 透视倾斜场景。",
 		unavailableHint: "",
 	},
 };
@@ -183,7 +183,7 @@ export function TrackManager(props: {
 				onMouseDown={(e) => e.stopPropagation()}
 			>
 				<IconLucidePlus class="size-3.5 shrink-0" />
-				<span class="truncate">Add track</span>
+				<span class="truncate">添加轨道</span>
 				<IconCapChevronDown class="size-2.5 shrink-0 text-white/70 transition-transform duration-200 group-data-expanded:rotate-180" />
 			</Popover.Trigger>
 			<Popover.Portal>
@@ -200,10 +200,10 @@ export function TrackManager(props: {
 				>
 					<div class="flex flex-col gap-0.5 px-4 pt-3.5 pb-3 border-b shrink-0 border-gray-3">
 						<span class="text-[0.8125rem] font-semibold text-gray-12">
-							Add a track
+							添加轨道
 						</span>
 						<span class="text-[0.6875rem] leading-snug text-gray-10">
-							Layer captions, audio, zooms and more onto your timeline.
+							在时间线上叠加字幕、音频、缩放等内容。
 						</span>
 					</div>
 					<div class="flex overflow-y-auto flex-col flex-1 gap-0.5 p-1.5 min-h-0 scrollbar-none">
@@ -226,7 +226,7 @@ export function TrackManager(props: {
 					<div class="p-1.5 border-t shrink-0 border-gray-3">
 						<Popover.CloseButton class="flex gap-1.5 justify-center items-center px-3 w-full h-9 text-[0.8125rem] font-medium rounded-lg border transition-colors duration-150 outline-hidden border-gray-4/70 bg-gray-2 text-gray-12 hover:bg-gray-3 hover:border-gray-5">
 							<IconLucideX class="size-3.5" />
-							Close
+							关闭
 						</Popover.CloseButton>
 					</div>
 				</Popover.Content>

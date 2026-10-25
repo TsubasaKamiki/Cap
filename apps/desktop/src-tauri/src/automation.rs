@@ -74,7 +74,6 @@ impl AutomationHost for DesktopAutomationHost {
             Capability::CopyToClipboard,
             Capability::SaveToLocation,
             Capability::Export,
-            Capability::Upload,
             Capability::RevealInFileManager,
             Capability::OpenFile,
             Capability::RunCommand,
@@ -929,9 +928,9 @@ pub async fn test_automation(
                 action_type: format!("{action:?}")
                     .split_whitespace()
                     .next()
-                    .unwrap_or("Unknown")
+                    .unwrap_or("未知")
                     .to_string(),
-                capability: cap.map_or_else(|| "None".to_string(), |c| format!("{c:?}")),
+                capability: cap.map_or_else(|| "无".to_string(), |c| format!("{c:?}")),
                 supported: cap.is_none_or(|c| supported.contains(&c)),
             }
         })
@@ -959,14 +958,14 @@ pub async fn list_automation_capabilities() -> Vec<String> {
     vec![
         "CopyToClipboard".to_string(),
         "SaveToLocation".to_string(),
-        "Export".to_string(),
-        "Upload".to_string(),
+        "导出".to_string(),
+        "上传".to_string(),
         "RevealInFileManager".to_string(),
         "OpenFile".to_string(),
         "RunCommand".to_string(),
         "Webhook".to_string(),
         "RecognizeText".to_string(),
-        "Notify".to_string(),
+        "发送通知".to_string(),
         "OpenEditor".to_string(),
         "ApplyPreset".to_string(),
         "DeleteLocalFiles".to_string(),

@@ -307,6 +307,12 @@ fn constrain_capture_size(size: PhysicalSize, max_size: Option<(u32, u32)>) -> P
         return PhysicalSize::new(ensure_even(width) as f64, ensure_even(height) as f64);
     };
 
+    let (max_width, max_height) = if width < height && max_width > max_height {
+        (max_height, max_width)
+    } else {
+        (max_width, max_height)
+    };
+
     if width <= max_width && height <= max_height {
         return PhysicalSize::new(ensure_even(width) as f64, ensure_even(height) as f64);
     }
@@ -324,7 +330,7 @@ fn constrain_capture_size(size: PhysicalSize, max_size: Option<(u32, u32)>) -> P
         output_height = constrained_height,
         max_width,
         max_height,
-        "Screen capture input constrained for camera recording"
+        "Screen capture input constrained to recording resolution"
     );
 
     PhysicalSize::new(constrained_width as f64, constrained_height as f64)
@@ -713,6 +719,33 @@ fn list_windows_inner(_include_accessory_panels: bool) -> Vec<(CaptureWindow, Wi
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn recording_resolution_presets_constrain_landscape_and_portrait_capture() {
+        for (height, width) in [(720, 1280), (1080, 1920), (1440, 2560), (2160, 3840)] {
+            let limit = crate::studio_recording::recording_resolution_size(height);
+            assert_eq!(limit, (width, height));
+            for (source, expected) in [
+                ((7680.0, 4320.0), (width as f64, height as f64)),
+                ((4320.0, 7680.0), (height as f64, width as f64)),
+                ((640.0, 360.0), (640.0, 360.0)),
+            ] {
+                let actual =
+                    constrain_capture_size(PhysicalSize::new(source.0, source.1), Some(limit));
+                assert_eq!((actual.width(), actual.height()), expected);
+            }
+        }
+        assert_eq!(
+            crate::studio_recording::recording_resolution_size(0),
+            (3840, 2160)
+        );
+    }
+
+    #[test]
+    fn recording_resolution_keeps_window_aspect_ratio() {
+        let actual = constrain_capture_size(PhysicalSize::new(2400.0, 1600.0), Some((1920, 1080)));
+        assert_eq!((actual.width(), actual.height()), (1620.0, 1080.0));
+    }
 
     #[test]
     #[cfg(target_os = "linux")]

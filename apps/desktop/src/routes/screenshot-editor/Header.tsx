@@ -12,7 +12,6 @@ import IconCapCrop from "~icons/cap/crop";
 import IconCapTrash from "~icons/cap/trash";
 import IconLucideCopy from "~icons/lucide/copy";
 import IconLucideFolder from "~icons/lucide/folder";
-import IconLucideLink from "~icons/lucide/link";
 import IconLucideMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconLucideSave from "~icons/lucide/save";
 import { AnnotationTools } from "./AnnotationTools";
@@ -44,7 +43,7 @@ export function Header() {
 	} = ctx;
 	const path = () => ctx.editorInstance()?.path ?? "";
 
-	const { exportImage, exportStatus, isExporting } = useScreenshotExport();
+	const { exportImage, isExporting } = useScreenshotExport();
 
 	createEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -93,18 +92,6 @@ export function Header() {
 	};
 
 	const isCropDisabled = () => !originalImageSize() || !isImageFileReady();
-	const shareTooltip = () => {
-		switch (exportStatus()) {
-			case "rendering":
-				return "Rendering screenshot";
-			case "encoding":
-				return "Preparing upload";
-			case "uploading":
-				return "Uploading screenshot";
-			default:
-				return "Create shareable link";
-		}
-	};
 
 	return (
 		<div
@@ -119,7 +106,7 @@ export function Header() {
 			<div class="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
 				<AspectRatioSelect />
 				<EditorButton
-					tooltipText="Crop Image"
+					tooltipText="裁剪图片"
 					onClick={cropDialogHandler}
 					disabled={isCropDisabled()}
 					leftIcon={<IconCapCrop class="size-4" />}
@@ -146,29 +133,24 @@ export function Header() {
 					onClick={() => {
 						exportImage("clipboard");
 					}}
-					tooltipText="Copy to Clipboard"
+					tooltipText="复制到剪贴板"
 					disabled={isExporting()}
 					leftIcon={<IconLucideCopy class="w-4" />}
 				/>
 
 				<EditorButton
-					tooltipText="Save"
+					tooltipText="保存"
 					onClick={() => exportImage("file")}
 					disabled={isExporting()}
 					leftIcon={<IconLucideSave class="size-4" />}
 				/>
 
-				<EditorButton
-					tooltipText={shareTooltip()}
-					onClick={() => exportImage("share")}
-					disabled={isExporting()}
-					leftIcon={<IconLucideLink class="size-4" />}
-				/>
+				{null}
 
 				<DropdownMenu gutter={8} placement="bottom-end">
 					<EditorButton<typeof DropdownMenu.Trigger>
 						as={DropdownMenu.Trigger}
-						tooltipText="More Actions"
+						tooltipText="更多操作"
 						leftIcon={<IconLucideMoreHorizontal class="size-4" />}
 						disabled={isExporting()}
 					/>
@@ -188,22 +170,18 @@ export function Header() {
 										}}
 									>
 										<IconLucideFolder class="size-4 text-gray-11" />
-										<span>Open Folder</span>
+										<span>打开文件夹</span>
 									</DropdownItem>
 									<DropdownItem
 										onSelect={async () => {
-											if (
-												await ask(
-													"Are you sure you want to delete this screenshot?",
-												)
-											) {
+											if (await ask("确定要删除这张截图吗？")) {
 												await remove(path());
 												await getCurrentWindow().close();
 											}
 										}}
 									>
 										<IconCapTrash class="size-4 text-gray-11" />
-										<span>Delete</span>
+										<span>删除</span>
 									</DropdownItem>
 								</MenuItemList>
 							</PopperContent>

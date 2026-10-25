@@ -3024,14 +3024,25 @@ impl ProjectUniforms {
         project: &ProjectConfiguration,
         resolution_base: XY<u32>,
     ) -> (u32, u32) {
-        let (base_width, base_height) = Self::get_base_size(options, project);
+        // Rounded layout dimensions must not change the requested export aspect ratio.
+        let (base_width, base_height) = match project.aspect_ratio {
+            Some(AspectRatio::Wide) => (16, 9),
+            Some(AspectRatio::Vertical) => (9, 16),
+            Some(AspectRatio::Square) => (1, 1),
+            Some(AspectRatio::Classic) => (4, 3),
+            Some(AspectRatio::Tall) => (3, 4),
+            None => {
+                let crop = Self::get_crop(options, project);
+                (crop.size.x, crop.size.y)
+            }
+        };
 
-        let width_scale = resolution_base.x as f32 / base_width as f32;
-        let height_scale = resolution_base.y as f32 / base_height as f32;
+        let width_scale = resolution_base.x as f64 / base_width as f64;
+        let height_scale = resolution_base.y as f64 / base_height as f64;
         let scale = width_scale.min(height_scale);
 
-        let scaled_width = ((base_width as f32 * scale) as u32 + 3) & !3;
-        let scaled_height = ((base_height as f32 * scale) as u32 + 1) & !1;
+        let scaled_width = ((base_width as f64 * scale) as u32 + 3) & !3;
+        let scaled_height = ((base_height as f64 * scale) as u32 + 1) & !1;
         (scaled_width, scaled_height)
     }
 
@@ -4664,6 +4675,76 @@ mod tests {
         let bounds = inset_crop_bounds([0.0, 0.0, 1.0, 1.0], [1.0, 1.0], 2.0);
 
         assert_eq!(bounds, [0.0, 0.0, 1.0, 1.0]);
+    }
+
+    #[test]
+    fn fixed_aspect_4k_export_ignores_rounded_layout_dimensions() {
+        let options = render_options(320, 240);
+        for padding in [0.0, 20.0, 50.0] {
+            let mut project = ProjectConfiguration {
+                aspect_ratio: Some(AspectRatio::Wide),
+                ..ProjectConfiguration::default()
+            };
+            project.background.padding = padding;
+            assert_eq!(
+                ProjectUniforms::get_output_size(&options, &project, XY::new(3840, 2160)),
+                (3840, 2160)
+            );
+            project.aspect_ratio = Some(AspectRatio::Vertical);
+            assert_eq!(
+                ProjectUniforms::get_output_size(&options, &project, XY::new(2160, 3840)),
+                (2160, 3840)
+            );
+        }
+    }
+
+    #[test]
+    fn auto_aspect_export_ignores_rounded_padding_dimensions() {
+        for (source, resolution) in [
+            (XY::new(3840, 2160), XY::new(3840, 2160)),
+            (XY::new(1920, 1080), XY::new(3840, 2160)),
+            (XY::new(2160, 3840), XY::new(2160, 3840)),
+        ] {
+            let options = render_options(source.x, source.y);
+            for padding in [0.0, 10.0, 12.5, 25.0, 50.0, 100.0] {
+                let mut project = ProjectConfiguration {
+                    aspect_ratio: None,
+                    ..ProjectConfiguration::default()
+                };
+                project.background.padding = padding;
+                assert_eq!(
+                    ProjectUniforms::get_output_size(&options, &project, resolution),
+                    (resolution.x, resolution.y),
+                    "source={source:?}, padding={padding}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn auto_aspect_export_uses_crop_ratio() {
+        let options = render_options(3840, 2160);
+        for (crop_size, expected) in [
+            (XY::new(1600, 900), (3840, 2160)),
+            (XY::new(1000, 500), (3840, 1920)),
+        ] {
+            for padding in [0.0, 10.0, 25.0, 50.0] {
+                let mut project = ProjectConfiguration {
+                    aspect_ratio: None,
+                    ..ProjectConfiguration::default()
+                };
+                project.background.padding = padding;
+                project.background.crop = Some(Crop {
+                    position: XY::new(100, 50),
+                    size: crop_size,
+                });
+                assert_eq!(
+                    ProjectUniforms::get_output_size(&options, &project, XY::new(3840, 2160)),
+                    expected,
+                    "crop={crop_size:?}, padding={padding}"
+                );
+            }
+        }
     }
 
     #[test]

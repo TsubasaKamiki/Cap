@@ -178,7 +178,7 @@ export function ZoomTrack(props: {
 					items: [
 						{
 							id: "generateZoomSegments",
-							text: "Generate zoom segments from clicks",
+							text: "根据点击生成缩放片段",
 							action: handleGenerateZoomSegments,
 						},
 					],
@@ -318,15 +318,13 @@ export function ZoomTrack(props: {
 										void handleGenerateZoomSegments();
 									}}
 								>
-									{isGeneratingAutoZoom()
-										? "Generating..."
-										: "Click to generate zoom segments"}
+									{isGeneratingAutoZoom() ? "正在生成…" : "点击生成缩放片段"}
 								</Button>
 								<button
 									type="button"
 									class="flex shrink-0 justify-center items-center rounded-full outline-hidden text-gray-11 hover:text-gray-12 hover:bg-gray-5 focus-visible:ring-2 focus-visible:ring-gray-8 size-8 transition-colors"
 									disabled={isGeneratingAutoZoom()}
-									aria-label="Dismiss for this session"
+									aria-label="本次不再显示"
 									onClick={() => setSessionDismissedGenerateZoomPrompt(true)}
 								>
 									<IconLucideX class="size-4" />
@@ -346,7 +344,7 @@ export function ZoomTrack(props: {
 						};
 
 						const zoomModeLabel = () =>
-							segment().mode === "auto" ? "Automatic Zoom" : "Manual Zoom";
+							segment().mode === "auto" ? "自动缩放" : "手动缩放";
 
 						const zoomSegments = () => project.timeline?.zoomSegments ?? [];
 
@@ -572,7 +570,7 @@ export function ZoomTrack(props: {
 										items: [
 											{
 												id: "selectAllZoomSegments",
-												text: "Select all zoom segments",
+												text: "选择全部缩放片段",
 												enabled: allIndices.length > 1,
 												action: () =>
 													setEditorState("timeline", "selection", {
@@ -584,8 +582,8 @@ export function ZoomTrack(props: {
 												id: "deleteZoomSegments",
 												text:
 													targetIndices.length > 1
-														? `Delete ${targetIndices.length} zoom segments`
-														: "Delete zoom segment",
+														? `删除 ${targetIndices.length} 个缩放片段`
+														: "删除缩放片段",
 												action: () =>
 													projectActions.deleteZoomSegments(targetIndices),
 											},
@@ -700,7 +698,7 @@ export function ZoomTrack(props: {
 														<span class="opacity-70">
 															{visibleBox().width >= 140
 																? zoomModeLabel()
-																: "Zoom"}
+																: "缩放"}
 														</span>
 														<div class="flex gap-1 items-center text-md">
 															<IconLucideSearch class="size-3.5" />

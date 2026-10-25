@@ -65,7 +65,7 @@ function palettePreview(config: AnimatedGradientConfig) {
 
 function controlValue(control: AnimatedGradientControl, value: number) {
 	if (control.key === "direction") return `${Math.round(value)}°`;
-	if (control.key === MOTION_KEY && value === 0) return "Still";
+	if (control.key === MOTION_KEY && value === 0) return "静止";
 	return control.step < 1 ? value.toFixed(1) : String(Math.round(value));
 }
 
@@ -261,7 +261,7 @@ export function AnimatedGradientEditor(props: {
 			)
 				applyConfig(next);
 		} catch {
-			if (!disposed) setError("Could not create a random gradient. Try again.");
+			if (!disposed) setError("无法创建随机渐变，请重试。");
 		} finally {
 			if (!disposed) setRandomizing(false);
 		}
@@ -367,8 +367,8 @@ export function AnimatedGradientEditor(props: {
 			if (!disposed)
 				setError(
 					error instanceof SavedGradientLimitError
-						? `You can save up to ${MAX_SAVED} gradients. Delete one to add another.`
-						: "Could not save this gradient. Try again.",
+						? `最多可保存 ${MAX_SAVED} 个渐变，请先删除一个再添加。`
+						: "无法保存此渐变，请重试。",
 				);
 		} finally {
 			if (!disposed) setSaving(false);
@@ -387,7 +387,7 @@ export function AnimatedGradientEditor(props: {
 			if (disposed) return;
 			await library.refetch();
 		} catch {
-			if (!disposed) setError("Could not delete this gradient. Try again.");
+			if (!disposed) setError("无法删除此渐变，请重试。");
 		} finally {
 			if (!disposed) setDeletingId(null);
 		}
@@ -407,12 +407,12 @@ export function AnimatedGradientEditor(props: {
 					</Show>
 
 					<Field
-						name="Presets"
+						name="预设"
 						value={
 							<HeaderButton
 								icon={<IconLucideSave />}
-								label="Save"
-								title="Save the current gradient"
+								label="保存"
+								title="保存当前渐变"
 								pressed={saveOpen()}
 								disabled={
 									saving() ||
@@ -428,8 +428,8 @@ export function AnimatedGradientEditor(props: {
 							<div class="grid grid-cols-7 gap-2">
 								<button
 									type="button"
-									title="Randomize"
-									aria-label="Randomize gradient"
+									title="随机生成"
+									aria-label="随机生成渐变"
 									disabled={randomizing()}
 									class={cx(
 										swatchClass,
@@ -459,8 +459,8 @@ export function AnimatedGradientEditor(props: {
 									<Input
 										ref={(element) => queueMicrotask(() => element.focus())}
 										class="min-w-0 flex-1"
-										placeholder="Name this gradient"
-										aria-label="Saved gradient name"
+										placeholder="为渐变命名"
+										aria-label="已保存渐变名称"
 										maxLength={80}
 										value={presetName()}
 										disabled={saving()}
@@ -483,11 +483,11 @@ export function AnimatedGradientEditor(props: {
 										disabled={!presetName().trim() || saving()}
 										onClick={() => void savePreset()}
 									>
-										{saving() ? "Saving…" : "Save"}
+										{saving() ? "Saving…" : "保存"}
 									</button>
 									<button
 										type="button"
-										aria-label="Cancel"
+										aria-label="取消"
 										class="rounded-md p-1.5 text-gray-10 transition-colors hover:bg-gray-3 hover:text-gray-12"
 										onClick={closeSave}
 									>
@@ -496,7 +496,7 @@ export function AnimatedGradientEditor(props: {
 								</div>
 							</Show>
 							<Show when={savedPresets().length > 0}>
-								<span class="text-[11px] text-gray-10">Saved</span>
+								<span class="text-[11px] text-gray-10">已保存</span>
 								<div class="grid grid-cols-7 gap-2">
 									<For each={savedPresets()}>
 										{(preset) => (
@@ -516,8 +516,8 @@ export function AnimatedGradientEditor(props: {
 												<Show when={isSelected(preset)}>
 													<button
 														type="button"
-														title="Delete"
-														aria-label={`Delete ${preset.name}`}
+														title="删除"
+														aria-label={`删除 ${preset.name}`}
 														disabled={deletingId() !== null}
 														class="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-gray-12 text-gray-1 shadow-sm transition-colors hover:bg-red-11 disabled:opacity-40"
 														onClick={() => void deletePreset(preset.id)}
@@ -536,12 +536,12 @@ export function AnimatedGradientEditor(props: {
 					<div class="w-full border-t border-dashed border-gray-5" />
 
 					<Field
-						name="Colours"
+						name="颜色"
 						value={
 							<HeaderButton
 								icon={<IconLucidePlus />}
-								label="Add"
-								title="Add a colour"
+								label="添加"
+								title="添加颜色"
 								disabled={current().colorStops.length >= MAX_STOPS}
 								onClick={() =>
 									addStop(largestGapPosition(current().colorStops))
@@ -581,7 +581,7 @@ export function AnimatedGradientEditor(props: {
 											return (
 												<button
 													type="button"
-													aria-label={`Colour ${index + 1}`}
+													aria-label={`颜色 ${index + 1}`}
 													aria-pressed={selected()}
 													class={cx(
 														"absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full p-0.5 shadow-md outline-hidden transition-[width,height] focus-visible:ring-2 focus-visible:ring-blue-9",
@@ -609,7 +609,7 @@ export function AnimatedGradientEditor(props: {
 															);
 														}
 														if (
-															(event.key === "Delete" ||
+															(event.key === "删除" ||
 																event.key === "Backspace") &&
 															current().colorStops.length > MIN_STOPS
 														) {
@@ -656,8 +656,8 @@ export function AnimatedGradientEditor(props: {
 											</span>
 											<button
 												type="button"
-												title="Remove colour"
-												aria-label={`Remove colour ${stopIndex() + 1}`}
+												title="移除颜色"
+												aria-label={`移除颜色 ${stopIndex() + 1}`}
 												disabled={current().colorStops.length <= MIN_STOPS}
 												class="rounded-md p-1.5 text-gray-10 transition-colors hover:bg-gray-3 hover:text-gray-12 disabled:opacity-30 disabled:hover:bg-transparent"
 												onClick={() => removeStop(stopIndex())}
@@ -687,7 +687,7 @@ export function AnimatedGradientEditor(props: {
 
 					<Show when={motionControl()}>
 						{(control) => (
-							<Subfield name="Motion" class="gap-4">
+							<Subfield name="动态" class="gap-4">
 								<div class="flex min-w-0 flex-1 items-center gap-3">
 									<Slider
 										class="min-w-0 flex-1"
@@ -696,7 +696,7 @@ export function AnimatedGradientEditor(props: {
 										maxValue={control().max}
 										step={control().step}
 										formatTooltip={(value) => controlValue(control(), value)}
-										aria-label="Motion speed"
+										aria-label="动画速度"
 										onChange={([next]) =>
 											updateConfig((value) => {
 												value[MOTION_KEY] = next;
@@ -716,14 +716,14 @@ export function AnimatedGradientEditor(props: {
 					<KCollapsible open={fineTuneOpen()} onOpenChange={setFineTuneOpen}>
 						<div class="flex items-center">
 							<KCollapsible.Trigger class="group flex flex-1 items-center gap-1.5 text-sm font-medium text-gray-12 outline-hidden">
-								Fine-tune
+								微调
 								<IconCapChevronDown class="size-3.5 text-gray-10 transition-transform duration-200 group-data-expanded:rotate-180" />
 							</KCollapsible.Trigger>
 							<Show when={fineTuneOpen()}>
 								<HeaderButton
 									icon={<IconLucideRotateCcw />}
-									label="Reset"
-									title="Reset fine-tune settings"
+									label="重置"
+									title="重置微调设置"
 									onClick={resetFineTune}
 								/>
 							</Show>

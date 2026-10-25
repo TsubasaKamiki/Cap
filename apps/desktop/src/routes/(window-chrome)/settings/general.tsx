@@ -1,10 +1,14 @@
 import { Button } from "@cap/ui-solid";
-import { createWritableMemo } from "@solid-primitives/memo";
 import {
 	isPermissionGranted,
 	requestPermission,
 } from "@tauri-apps/plugin-notification";
 import { type OsType, type } from "@tauri-apps/plugin-os";
+import {
+	normalizeRecordingResolution,
+	RECORDING_FPS_OPTIONS,
+	RECORDING_RESOLUTION_OPTIONS,
+} from "~/utils/recording-quality";
 import "@total-typescript/ts-reset/filter-boolean";
 import { Collapsible } from "@kobalte/core/collapsible";
 import { CheckMenuItem, Menu, MenuItem } from "@tauri-apps/api/menu";
@@ -31,7 +35,6 @@ import {
 	generalSettingsStore,
 	recordingStartSafetyStore,
 } from "~/store";
-import { clientEnv } from "~/utils/env";
 import {
 	deriveGeneralSettings,
 	type GeneralSettingsStore,
@@ -47,7 +50,6 @@ import {
 	type PostDeletionBehaviour,
 	type PostStudioRecordingBehaviour,
 	type StudioRecordingQuality,
-	type UpdateChannel,
 	type WindowExclusion,
 } from "~/utils/tauri";
 import IconLucideAlertTriangle from "~icons/lucide/alert-triangle";
@@ -63,7 +65,7 @@ import {
 } from "./Setting";
 
 const getExclusionPrimaryLabel = (entry: WindowExclusion) =>
-	entry.ownerName ?? entry.windowTitle ?? entry.bundleIdentifier ?? "Unknown";
+	entry.ownerName ?? entry.windowTitle ?? entry.bundleIdentifier ?? "未知";
 
 const getExclusionSecondaryLabel = (entry: WindowExclusion) => {
 	if (entry.ownerName && entry.windowTitle) {
@@ -115,21 +117,8 @@ const coversDefaultExclusion = (
 
 type ExtendedGeneralSettingsStore = GeneralSettingsStore;
 
-const MAX_FPS_OPTIONS = [
-	{ value: 24, label: "24 FPS" },
-	{ value: 25, label: "25 FPS" },
-	{ value: 30, label: "30 FPS" },
-	{ value: 60, label: "60 FPS (Recommended)" },
-	{ value: 120, label: "120 FPS" },
-] satisfies {
-	value: number;
-	label: string;
-}[];
-
 const DEFAULT_PROJECT_NAME_TEMPLATE =
 	"{target_name} ({target_kind}) {date} {time}";
-const FREE_INSTANT_MODE_MAX_RESOLUTION = 1280;
-const PRO_INSTANT_MODE_MAX_RESOLUTION = 1920;
 
 export default function GeneralSettings() {
 	const [stores] = createResource(() =>
@@ -155,9 +144,9 @@ function AppearanceSection(props: {
 	onThemeChange: (theme: AppTheme) => void;
 }) {
 	const options = [
-		{ id: "system", name: "System" },
-		{ id: "light", name: "Light" },
-		{ id: "dark", name: "Dark" },
+		{ id: "system", name: "跟随系统" },
+		{ id: "light", name: "轻度" },
+		{ id: "dark", name: "深色" },
 	] satisfies { id: AppTheme; name: string }[];
 
 	const previews = {
@@ -167,10 +156,7 @@ function AppearanceSection(props: {
 	};
 
 	return (
-		<Section
-			title="Appearance"
-			description="Match Cap to your system theme or pick a fixed look."
-		>
+		<Section title="外观" description="跟随系统主题，或选择固定外观。">
 			<SectionCard padded>
 				<div
 					class="grid grid-cols-3 gap-3"
@@ -183,7 +169,7 @@ function AppearanceSection(props: {
 								<button
 									type="button"
 									aria-checked={isSelected()}
-									aria-label={`Select theme: ${theme.name}`}
+									aria-label={`选择主题：${theme.name}`}
 									onClick={() => props.onThemeChange(theme.id)}
 									class="flex flex-col gap-2 items-center group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-9 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-1 rounded-xl"
 								>
@@ -201,7 +187,7 @@ function AppearanceSection(props: {
 													class="object-cover w-full h-full animate-in fade-in duration-200"
 													draggable={false}
 													src={preview}
-													alt={`Preview of ${theme.name} theme`}
+													alt={`${theme.name}主题预览`}
 												/>
 											)}
 										</Show>
@@ -238,15 +224,6 @@ function Inner(props: {
 		props.initialRecordingStartSafety.confirmBeforeRecordingWithoutMicrophone,
 	);
 	const auth = authStore.createQuery();
-	const hasCapPro = createMemo(() => {
-		const plan = auth.data?.plan;
-		return !!plan && (plan.upgraded || plan.manual);
-	});
-	const instantModeMaxResolution = createMemo(() =>
-		hasCapPro()
-			? (settings.instantModeMaxResolution ?? PRO_INSTANT_MODE_MAX_RESOLUTION)
-			: FREE_INSTANT_MODE_MAX_RESOLUTION,
-	);
 
 	createEffect(() => {
 		setSettings(reconcile(deriveGeneralSettings(props.initialStore)));
@@ -523,20 +500,17 @@ function Inner(props: {
 				/>
 
 				{ostype === "macos" && (
-					<Section
-						title="App"
-						description="Choose how Cap shows up on your system."
-					>
+					<Section title="应用" description="设置 Cap 在系统中的显示方式。">
 						<SectionRows>
 							<ToggleSettingItem
-								label="Always show dock icon"
-								description="Keep Cap in the dock even when no windows are open."
+								label="始终显示程序坞图标"
+								description="即使没有打开的窗口，也在程序坞中显示 Cap。"
 								value={!settings.hideDockIcon}
 								onChange={(v) => handleChange("hideDockIcon", !v)}
 							/>
 							<ToggleSettingItem
-								label="System notifications"
-								description="Show notifications for clipboard copies, saved files, and more. You may need to allow Cap in your system's notification settings."
+								label="系统通知"
+								description="复制到剪贴板、保存文件等操作完成时发送通知。可能需要在系统通知设置中允许 Cap 发送通知。"
 								value={!!settings.enableNotifications}
 								onChange={async (value) => {
 									if (value) {
@@ -553,17 +527,7 @@ function Inner(props: {
 					</Section>
 				)}
 
-				<CapProSection
-					hasCapPro={hasCapPro()}
-					instantResolution={instantModeMaxResolution()}
-					onInstantResolutionChange={(value) =>
-						handleChange("instantModeMaxResolution", value)
-					}
-					autoOpenShareableLinks={!settings.disableAutoOpenLinks}
-					onAutoOpenShareableLinksChange={(v) =>
-						handleChange("disableAutoOpenLinks", !v)
-					}
-				/>
+				{null}
 
 				<QualitySection
 					studioQuality={settings.studioRecordingQuality ?? "balanced"}
@@ -572,99 +536,96 @@ function Inner(props: {
 					}
 				/>
 
-				<Section
-					title="Recording"
-					description="Behaviour while you record and after you stop."
-				>
+				<Section title="录制" description="录制过程中及结束后的行为。">
 					<SectionRows>
 						<SelectSettingItem
-							label="Countdown"
-							description="Wait before the recording starts."
+							label="倒计时"
+							description="开始录制前的等待时间。"
 							value={settings.recordingCountdown ?? 0}
 							onChange={(value) => handleChange("recordingCountdown", value)}
 							options={[
-								{ text: "Off", value: 0 },
-								{ text: "3 seconds", value: 3 },
-								{ text: "5 seconds", value: 5 },
-								{ text: "10 seconds", value: 10 },
+								{ text: "关闭", value: 0 },
+								{ text: "3 秒", value: 3 },
+								{ text: "5 秒", value: 5 },
+								{ text: "10 秒", value: 10 },
 							]}
 						/>
 						<ToggleSettingItem
-							label="Confirm before recording without a microphone"
-							description="Require confirmation when no microphone is selected or the selected microphone is unavailable."
+							label="无麦克风录制前确认"
+							description="未选择麦克风或所选麦克风不可用时，开始录制前要求确认。"
 							value={confirmBeforeRecordingWithoutMicrophone()}
 							onChange={handleRecordingStartSafetyChange}
 						/>
 						<SelectSettingItem
-							label="Main window when recording starts"
-							description="What happens to the main window once a recording begins."
+							label="开始录制时的主窗口"
+							description="开始录制后主窗口的行为。"
 							value={settings.mainWindowRecordingStartBehaviour ?? "close"}
 							onChange={(value) =>
 								handleChange("mainWindowRecordingStartBehaviour", value)
 							}
 							options={[
-								{ text: "Close", value: "close" },
-								{ text: "Minimise", value: "minimise" },
+								{ text: "关闭", value: "close" },
+								{ text: "最小化", value: "minimise" },
 							]}
 						/>
 						<SelectSettingItem
-							label="After a Studio recording"
-							description="What happens once you stop a Studio recording."
+							label="工作室录制结束后"
+							description="停止工作室录制后的行为。"
 							value={settings.postStudioRecordingBehaviour ?? "openEditor"}
 							onChange={(value) =>
 								handleChange("postStudioRecordingBehaviour", value)
 							}
 							options={[
-								{ text: "Open editor", value: "openEditor" },
-								{ text: "Show in overlay", value: "showOverlay" },
+								{ text: "打开编辑器", value: "openEditor" },
+								{ text: "显示浮层", value: "showOverlay" },
 							]}
 						/>
 						<SelectSettingItem
-							label="After deleting a recording"
-							description="Whether the recording window should reopen."
+							label="删除录制后"
+							description="是否重新打开录制窗口。"
 							value={settings.postDeletionBehaviour ?? "doNothing"}
 							onChange={(value) => handleChange("postDeletionBehaviour", value)}
 							options={[
-								{ text: "Do nothing", value: "doNothing" },
+								{ text: "不执行操作", value: "doNothing" },
 								{
-									text: "Reopen recording window",
+									text: "重新打开录制窗口",
 									value: "reopenRecordingWindow",
 								},
 							]}
 						/>
 						<ToggleSettingItem
-							label="Delete Instant recordings after upload"
-							description="Cap removes the local file once it has uploaded successfully."
+							label="上传后删除即时录制"
+							description="上传成功后，Cap 会删除对应的本地文件。"
 							value={settings.deleteInstantRecordingsAfterUpload ?? false}
 							onChange={(v) =>
 								handleChange("deleteInstantRecordingsAfterUpload", v)
 							}
 						/>
 						<ToggleSettingItem
-							label="Crash-recoverable recording"
-							description="Record in fragments that can be recovered after a crash or power loss. Slightly larger files during capture."
+							label="支持崩溃恢复的录制"
+							description="以分片方式录制，崩溃或断电后可尝试恢复。采集过程中的文件会略大。"
 							value={settings.crashRecoveryRecording ?? true}
 							onChange={(value) =>
 								handleChange("crashRecoveryRecording", value)
 							}
 						/>
 						<ToggleSettingItem
-							label="Custom cursor capture (Studio)"
-							description="Capture cursor state separately so you can adjust size and smoothing in the editor."
+							label="独立采集光标（工作室）"
+							description="单独记录光标状态，便于在编辑器中调整大小和平滑效果。"
 							value={!!settings.custom_cursor_capture2}
 							onChange={(value) =>
 								handleChange("custom_cursor_capture2", value)
 							}
 						/>
 						<ToggleSettingItem
-							label="Auto zoom on clicks"
-							description="Automatically add zoom segments around mouse clicks in Studio recordings."
+							label="点击时自动缩放"
+							description="在工作室录制中自动为鼠标点击添加缩放片段。"
 							value={!!settings.autoZoomOnClicks}
 							onChange={(value) => handleChange("autoZoomOnClicks", value)}
 						/>
 						<SettingItem
-							label="Default zoom amount"
-							description="Zoom level for newly created and auto-generated zoom segments."
+							label="默认缩放倍率"
+							description="新建及自动生成的缩放片段所使用的倍率。"
 						>
 							<div class="flex gap-2 items-center w-52">
 								<Slider
@@ -683,27 +644,37 @@ function Inner(props: {
 							</div>
 						</SettingItem>
 						<ToggleSettingItem
-							label="Capture keyboard presses"
-							description="Record key presses so you can add keyboard overlays in the editor."
+							label="记录键盘按键"
+							description="记录按键，以便在编辑器中添加按键提示。"
 							value={!!settings.captureKeyboardEvents}
 							onChange={(value) => handleChange("captureKeyboardEvents", value)}
 						/>
 						<ToggleSettingItem
-							label="Draw the MacBook notch on screen recordings"
-							description="Automatically restores the notch for new screen and area recordings when the selected region contains the complete notch. External displays, partial areas, and window recordings are left alone. Each recording can override it in the editor."
+							label="在录屏中显示 MacBook 刘海"
+							description="新建屏幕或区域录制时，如果选区包含完整刘海，会自动还原刘海外观。不影响外接显示器、局部区域和窗口录制。可在编辑器中单独调整。"
 							value={!!settings.macbookNotchOverlay}
 							onChange={(value) => handleChange("macbookNotchOverlay", value)}
 						/>
 						<SelectSettingItem
-							label="Max capture framerate"
+							label="录屏分辨率"
+							description="按所选上限采集屏幕、窗口或区域，保持比例，不放大原始画面。2K 为 2560×1440；竖屏自动交换宽高。纯摄像头录制使用设备格式。"
+							value={normalizeRecordingResolution(settings.recordingResolution)}
+							onChange={(value) => handleChange("recordingResolution", value)}
+							options={RECORDING_RESOLUTION_OPTIONS.map((option) => ({
+								text: `${option.label} · ${option.dimensions}`,
+								value: option.value,
+							}))}
+						/>
+						<SelectSettingItem
+							label="最高采集帧率"
 							description={
 								(settings.maxFps ?? 60) > 60
-									? "Maximum framerate for screen capture. Higher values may cause drops or increased CPU usage on some systems."
-									: "Maximum framerate for screen capture."
+									? "屏幕采集的最高帧率。较高值可能在部分系统上导致掉帧或增加 CPU 占用。"
+									: "屏幕采集帧率上限。开启摄像头时最高 30 帧/秒；兼容画质最高 24 帧/秒。"
 							}
 							value={settings.maxFps ?? 60}
 							onChange={(value) => handleChange("maxFps", value)}
-							options={MAX_FPS_OPTIONS.map((option) => ({
+							options={RECORDING_FPS_OPTIONS.map((option) => ({
 								text: option.label,
 								value: option.value,
 							}))}
@@ -722,7 +693,7 @@ function Inner(props: {
 							}
 						} catch (e) {
 							toast.error(
-								`Failed to choose recordings folder: ${e instanceof Error ? e.message : String(e)}`,
+								`无法选择录制文件夹：${e instanceof Error ? e.message : String(e)}`,
 							);
 						}
 					}}
@@ -733,7 +704,7 @@ function Inner(props: {
 							await offerRecordingsMigration();
 						} catch (e) {
 							toast.error(
-								`Failed to reset recordings folder: ${e instanceof Error ? e.message : String(e)}`,
+								`无法重置录制文件夹：${e instanceof Error ? e.message : String(e)}`,
 							);
 						}
 					}}
@@ -758,42 +729,11 @@ function Inner(props: {
 					isWindows={ostype === "windows"}
 				/>
 
-				<UpdatesSection
-					value={settings.updateChannel ?? "stable"}
-					onChange={async (channel) => {
-						await handleChange("updateChannel", channel);
-						try {
-							await commands.updatesChannelChanged();
-						} catch (error) {
-							console.error("Failed to notify update channel change", error);
-						}
-					}}
-				/>
+				{null}
 
-				<ServerURLSetting
-					value={settings.serverUrl ?? clientEnv.VITE_SERVER_URL}
-					defaultValue={clientEnv.VITE_SERVER_URL}
-					onChange={async (v) => {
-						const url = new URL(v);
-						const origin = url.origin;
+				{null}
 
-						if (
-							!(await confirm(
-								`Are you sure you want to change the server URL to '${origin}'? You will need to sign in again.`,
-							))
-						)
-							return;
-
-						await authStore.set(undefined);
-						await commands.setServerUrl(origin);
-						handleChange("serverUrl", origin);
-					}}
-				/>
-
-				<TelemetryCard
-					value={settings.enableTelemetry !== false}
-					onChange={(v) => handleChange("enableTelemetry", v)}
-				/>
+				{null}
 			</SettingsPageContent>
 		</div>
 	);
@@ -810,43 +750,37 @@ async function offerRecordingsMigration() {
 	}
 	if (count === 0) return;
 
-	const plural = count === 1 ? "recording" : "recordings";
 	const shouldMove = await confirm(
-		`Move your ${count} existing ${plural} to the new location? Recordings stay in your library either way.`,
+		`将现有的 ${count} 条录制移到新位置吗？无论是否移动，录制都会保留在媒体库中。`,
 	);
 	if (!shouldMove) return;
 
-	const toastId = toast.loading(`Moving ${count} ${plural}…`);
+	const toastId = toast.loading(`正在移动 ${count} 条录制…`);
 	let unlisten: (() => void) | undefined;
 	try {
 		unlisten = await events.recordingsMigrationProgress.listen((e) => {
 			toast.loading(
-				`Moving recordings… ${Math.min(e.payload.done + 1, e.payload.total)}/${e.payload.total}`,
+				`正在移动录制… ${Math.min(e.payload.done + 1, e.payload.total)}/${e.payload.total}`,
 				{ id: toastId },
 			);
 		});
 
 		const summary = await commands.migrateRecordingsToCurrentDir();
 
-		const parts = [
-			`Moved ${summary.moved} ${summary.moved === 1 ? "recording" : "recordings"}`,
-		];
+		const parts = [`已移动 ${summary.moved} 条录制`];
 		if (summary.skippedInUse > 0) {
-			parts.push(`${summary.skippedInUse} in use — left in place`);
+			parts.push(`${summary.skippedInUse} 条正在使用，保留在原位置`);
 		}
 		if (summary.failed.length > 0) {
-			parts.push(
-				`${summary.failed.length} failed — kept in the original folder`,
-			);
+			parts.push(`${summary.failed.length} 条移动失败，保留在原文件夹`);
 			toast.error(parts.join(" · "), { id: toastId });
 		} else {
 			toast.success(parts.join(" · "), { id: toastId });
 		}
 	} catch (e) {
-		toast.error(
-			`Failed to move recordings: ${e instanceof Error ? e.message : String(e)}`,
-			{ id: toastId },
-		);
+		toast.error(`无法移动录制：${e instanceof Error ? e.message : String(e)}`, {
+			id: toastId,
+		});
 	} finally {
 		unlisten?.();
 	}
@@ -857,12 +791,12 @@ function StorageSection(props: {
 	onPick: () => Promise<void>;
 	onReset: () => Promise<void>;
 }) {
-	const defaultLabel = "Default (Application Support)";
+	const defaultLabel = "默认（应用支持目录）";
 	const displayPath = () => props.recordingsPath ?? defaultLabel;
 	const isCustom = () => props.recordingsPath !== null;
 
 	return (
-		<Section title="Storage" description="Where Cap saves your recordings.">
+		<Section title="存储" description="Cap 保存录制文件的位置。">
 			<SectionCard padded>
 				<div class="flex flex-col gap-3">
 					<div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-3 border border-gray-4 min-w-0">
@@ -873,95 +807,12 @@ function StorageSection(props: {
 					<div class="flex justify-end gap-2">
 						<Show when={isCustom()}>
 							<Button size="sm" variant="gray" onClick={props.onReset}>
-								Reset to Default
+								恢复默认
 							</Button>
 						</Show>
 						<Button size="sm" variant="dark" onClick={props.onPick}>
-							Choose Folder
+							选择文件夹
 						</Button>
-					</div>
-				</div>
-			</SectionCard>
-		</Section>
-	);
-}
-
-function TelemetryCard(props: {
-	value: boolean;
-	onChange: (value: boolean) => void;
-}) {
-	return (
-		<Section title="Privacy">
-			<SectionRows>
-				<ToggleSettingItem
-					label="Share anonymous telemetry"
-					description="Cap uses anonymous telemetry to improve reliability and fix bugs. We never collect recording contents, window titles, file paths, or personal information."
-					value={props.value}
-					onChange={props.onChange}
-				/>
-			</SectionRows>
-		</Section>
-	);
-}
-
-type UpdateChannelOption = {
-	value: UpdateChannel;
-	label: string;
-	description: string;
-};
-
-const UPDATE_CHANNEL_OPTIONS: UpdateChannelOption[] = [
-	{
-		value: "stable",
-		label: "Stable",
-		description: "Versioned releases (recommended)",
-	},
-	{
-		value: "nightly",
-		label: "Nightly",
-		description:
-			"The newest builds, updated automatically in the background when you're not recording or exporting. May be unstable.",
-	},
-];
-
-function UpdatesSection(props: {
-	value: UpdateChannel;
-	onChange: (value: UpdateChannel) => void;
-}) {
-	const currentOption = createMemo(
-		() =>
-			UPDATE_CHANNEL_OPTIONS.find((option) => option.value === props.value) ??
-			UPDATE_CHANNEL_OPTIONS[0],
-	);
-
-	return (
-		<Section title="Updates" description="Choose which Cap builds you receive.">
-			<SectionCard>
-				<div class="flex flex-col gap-3 px-4 py-4">
-					<div class="flex justify-between items-start gap-4">
-						<div class="flex flex-col gap-0.5 min-w-0">
-							<p class="text-[13px] text-gray-12">Update channel</p>
-							<p class="text-xs leading-snug text-gray-10">
-								Which release channel Cap updates from.
-							</p>
-						</div>
-						<SegmentedControl
-							value={props.value}
-							onChange={props.onChange}
-							options={UPDATE_CHANNEL_OPTIONS.map((option) => ({
-								value: option.value,
-								label: option.label,
-							}))}
-						/>
-					</div>
-					<div class="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-gray-3">
-						<p class="text-xs text-gray-12">{currentOption().description}</p>
-						<Show when={props.value === "nightly"}>
-							<p class="text-[11px] text-gray-10 leading-snug">
-								Switching back to Stable will return you to the latest stable
-								version, which may be older than your current build.
-							</p>
-						</Show>
 					</div>
 				</div>
 			</SectionCard>
@@ -979,39 +830,22 @@ type StudioQualityTier = {
 const STUDIO_QUALITY_TIERS: StudioQualityTier[] = [
 	{
 		value: "compatibility",
-		label: "Compatibility",
-		summary: "Lower bitrate to keep older or low-power machines smooth.",
-		bestFor: "Older Intel Macs, 8GB MacBook Air, weaker laptops.",
+		label: "兼容",
+		summary: "降低码率并使用所选录屏分辨率；开启摄像头时最高 24 帧/秒。",
+		bestFor: "旧款 Intel Mac、8GB MacBook Air 和性能较弱的笔记本。",
 	},
 	{
 		value: "balanced",
-		label: "Balanced",
-		summary: "Sharp footage with sensible CPU and disk usage.",
-		bestFor: "Most modern Macs and PCs with 16GB+ RAM.",
+		label: "均衡",
+		summary: "按所选录屏分辨率采集，支持 4K，并兼顾处理器和磁盘占用。",
+		bestFor: "大多数配备 16GB 或更多内存的现代 Mac 和 PC。",
 	},
 	{
 		value: "ultra",
-		label: "Ultra",
-		summary: "Maximum detail for color-graded, large-display edits.",
-		bestFor: "M-series Pro/Max, discrete GPUs, 32GB+ RAM, NVMe.",
+		label: "极致",
+		summary: "最大限度保留细节，适合调色和大屏幕内容制作。",
+		bestFor: "M 系列 Pro/Max、独立显卡、32GB 以上内存及 NVMe 存储。",
 	},
-];
-
-type InstantResolutionTier = {
-	value: number;
-	label: string;
-	summary: string;
-};
-
-const INSTANT_RESOLUTION_TIERS: InstantResolutionTier[] = [
-	{ value: 1280, label: "720p", summary: "Smallest size, low bandwidth." },
-	{
-		value: 1920,
-		label: "1080p",
-		summary: "Recommended. Sharp on most networks.",
-	},
-	{ value: 2560, label: "1440p", summary: "More detail for desktop content." },
-	{ value: 3840, label: "4K", summary: "Max clarity. Needs fast upload." },
 ];
 
 function SegmentedControl<T extends string | number>(props: {
@@ -1061,9 +895,9 @@ function StudioQualitySubsection(props: {
 		>
 			<div class="flex justify-between items-start gap-4">
 				<div class="flex flex-col gap-0.5 min-w-0">
-					<p class="text-[13px] text-gray-12">Studio mode</p>
+					<p class="text-[13px] text-gray-12">工作室模式</p>
 					<p class="text-xs leading-snug text-gray-10">
-						Encoder profile for local Studio recordings.
+						本地工作室录制的编码画质。分辨率和帧率可在下方录制设置中选择。
 					</p>
 				</div>
 				<SegmentedControl
@@ -1078,121 +912,10 @@ function StudioQualitySubsection(props: {
 			<div class="flex flex-col gap-1.5 px-3 py-2.5 rounded-lg bg-gray-3">
 				<p class="text-xs text-gray-12">{currentTier().summary}</p>
 				<p class="text-[11px] text-gray-10 leading-snug">
-					<span class="text-gray-11">Best for:</span> {currentTier().bestFor}
+					<span class="text-gray-11">适合：</span> {currentTier().bestFor}
 				</p>
 			</div>
 		</div>
-	);
-}
-
-function InstantQualitySetting(props: {
-	hasCapPro: boolean;
-	value: number;
-	onChange: (value: number) => void;
-}) {
-	const effectiveValue = createMemo(() =>
-		props.hasCapPro ? props.value : FREE_INSTANT_MODE_MAX_RESOLUTION,
-	);
-	const currentTier = createMemo(
-		() =>
-			INSTANT_RESOLUTION_TIERS.find((t) => t.value === effectiveValue()) ??
-			INSTANT_RESOLUTION_TIERS[0],
-	);
-	const handleResolutionClick = async (value: number) => {
-		if (props.hasCapPro || value === FREE_INSTANT_MODE_MAX_RESOLUTION) {
-			props.onChange(value);
-			return;
-		}
-
-		toast.custom(
-			(t) => (
-				<div class="flex gap-3 items-center px-4 py-3 rounded-xl border shadow-lg bg-gray-1 border-gray-4 text-gray-12">
-					<p class="text-sm">
-						Upgrade to Cap Pro to record Instant Mode videos above 720p.
-					</p>
-					<button
-						type="button"
-						class="px-2.5 py-1 text-xs font-medium rounded-lg transition-colors bg-blue-9 text-white hover:bg-blue-10"
-						onClick={() => {
-							toast.dismiss(t.id);
-							void commands.showWindow("Upgrade");
-						}}
-					>
-						Upgrade
-					</button>
-				</div>
-			),
-			{ duration: 6000 },
-		);
-	};
-
-	return (
-		<SettingItem
-			id="settings-section-instant-quality"
-			label="Instant Mode quality"
-			description={
-				props.hasCapPro
-					? "Choose the maximum upload resolution for Instant recordings."
-					: "Instant recordings are locked to 720p. Cap Pro unlocks higher resolutions."
-			}
-		>
-			<div class="flex flex-col items-end gap-1.5">
-				<div class="inline-flex p-0.5 rounded-lg border border-gray-3 bg-gray-3">
-					<For each={INSTANT_RESOLUTION_TIERS}>
-						{(tier) => {
-							const isSelected = () => effectiveValue() === tier.value;
-							return (
-								<button
-									type="button"
-									onClick={() => void handleResolutionClick(tier.value)}
-									class={cx(
-										"px-3 py-1 text-xs font-medium rounded-md transition-[background-color,color,box-shadow]",
-										isSelected()
-											? "bg-gray-1 text-gray-12 shadow-sm"
-											: "text-gray-10 hover:text-gray-12",
-									)}
-								>
-									{tier.label}
-								</button>
-							);
-						}}
-					</For>
-				</div>
-				<p class="text-[11px] leading-snug text-right text-gray-10">
-					{currentTier().summary}
-				</p>
-			</div>
-		</SettingItem>
-	);
-}
-
-function CapProSection(props: {
-	hasCapPro: boolean;
-	instantResolution: number;
-	onInstantResolutionChange: (value: number) => void;
-	autoOpenShareableLinks: boolean;
-	onAutoOpenShareableLinksChange: (value: boolean) => void;
-}) {
-	return (
-		<Section
-			title="Cap Pro"
-			description="Settings available with a Cap Pro license."
-			pro
-		>
-			<SectionRows>
-				<InstantQualitySetting
-					hasCapPro={props.hasCapPro}
-					value={props.instantResolution}
-					onChange={props.onInstantResolutionChange}
-				/>
-				<ToggleSettingItem
-					label="Auto-open shareable links"
-					description="Open the share link in your browser as soon as the upload finishes."
-					value={props.autoOpenShareableLinks}
-					onChange={props.onAutoOpenShareableLinksChange}
-				/>
-			</SectionRows>
-		</Section>
 	);
 }
 
@@ -1201,71 +924,12 @@ function QualitySection(props: {
 	onStudioQualityChange: (value: StudioRecordingQuality) => void;
 }) {
 	return (
-		<Section
-			title="Quality"
-			description="Pick the right profile for local Studio recordings."
-		>
+		<Section title="画质" description="选择本地工作室录制的画质配置。">
 			<SectionCard>
 				<StudioQualitySubsection
 					value={props.studioQuality}
 					onChange={props.onStudioQualityChange}
 				/>
-			</SectionCard>
-		</Section>
-	);
-}
-
-function ServerURLSetting(props: {
-	value: string;
-	defaultValue: string;
-	onChange: (v: string) => void;
-}) {
-	const [value, setValue] = createWritableMemo(() => props.value);
-	const isDefaultValue = () =>
-		props.value === props.defaultValue && value() === props.defaultValue;
-	const resetToDefault = () => {
-		if (props.value === props.defaultValue) {
-			setValue(props.defaultValue);
-			return;
-		}
-
-		props.onChange(props.defaultValue);
-	};
-
-	return (
-		<Section
-			title="Self-host"
-			description="Only change this if you are running your own instance of Cap Web."
-		>
-			<SectionCard padded>
-				<div class="flex flex-col gap-3">
-					<label class="flex flex-col gap-1.5">
-						<span class="text-[13px] text-gray-12">Cap Server URL</span>
-						<Input
-							class="bg-gray-3"
-							value={value()}
-							onInput={(e) => setValue(e.currentTarget.value)}
-						/>
-					</label>
-					<div class="flex justify-end gap-2">
-						<Button
-							size="sm"
-							variant="gray"
-							disabled={isDefaultValue()}
-							onClick={resetToDefault}
-						>
-							Reset to Default
-						</Button>
-						<Button
-							size="sm"
-							variant="dark"
-							disabled={props.value === value()}
-							onClick={() => props.onChange(value())}
-						>
-							Update
-						</Button>
-					</div>
-				</div>
 			</SectionCard>
 		</Section>
 	);
@@ -1301,7 +965,7 @@ function DefaultProjectNameCard(props: {
 		const formatted = await commands.formatProjectName(
 			val,
 			macos ? "Safari" : "Chrome",
-			"Window",
+			"窗口",
 			"instant",
 			datetime,
 		);
@@ -1313,7 +977,7 @@ function DefaultProjectNameCard(props: {
 			.formatProjectName(
 				MOMENT_EXAMPLE_TEMPLATE,
 				macos ? "Safari" : "Chrome",
-				"Window",
+				"窗口",
 				"instant",
 				datetime,
 			)
@@ -1338,7 +1002,7 @@ function DefaultProjectNameCard(props: {
 		return (
 			<button
 				type="button"
-				title="Click to copy"
+				title="点击复制"
 				class="px-1.5 py-0.5 mx-0.5 font-mono text-[11px] rounded-md transition-[background-color,color,transform] duration-150 ease-out bg-gray-3 hover:bg-gray-4 active:scale-95 text-gray-12"
 				onClick={() => commands.writeClipboardString(props.children)}
 			>
@@ -1349,8 +1013,8 @@ function DefaultProjectNameCard(props: {
 
 	return (
 		<Section
-			title="Default project name"
-			description="Template used for new recordings and exported files."
+			title="默认项目名称"
+			description="新录制和导出文件使用的名称模板。"
 			right={
 				<>
 					<Button
@@ -1368,7 +1032,7 @@ function DefaultProjectNameCard(props: {
 							await updatePreview(newTemplate);
 						}}
 					>
-						Reset
+						重置
 					</Button>
 					<Button
 						size="sm"
@@ -1379,7 +1043,7 @@ function DefaultProjectNameCard(props: {
 							await updatePreview();
 						}}
 					>
-						Save
+						保存
 					</Button>
 				</>
 			}
@@ -1406,20 +1070,20 @@ function DefaultProjectNameCard(props: {
 					<Collapsible class="w-full rounded-lg">
 						<Collapsible.Trigger class="inline-flex gap-1 items-center text-xs transition-colors text-gray-10 hover:text-gray-12 group">
 							<IconCapChevronDown class="size-3.5 data-group-expanded:rotate-180 transition-transform duration-200" />
-							<span>Available placeholders</span>
+							<span>可用占位符</span>
 						</Collapsible.Trigger>
 
 						<Collapsible.Content class="space-y-3 pt-3 text-xs text-gray-12 opacity-0 transition animate-collapsible-up data-expanded:animate-collapsible-down data-expanded:opacity-100">
 							<p class="text-gray-10">
-								Click any placeholder to copy it. Time supports custom formats
-								via <code class="text-gray-12">{"{moment:HH:mm}"}</code>.
+								点击占位符即可复制。时间支持自定义格式，使用{" "}
+								<code class="text-gray-12">{"{moment:HH:mm}"}</code>.
 							</p>
 
 							<div class="space-y-1">
-								<p class="font-medium text-gray-12">Recording mode</p>
+								<p class="font-medium text-gray-12">录制模式</p>
 								<p>
-									<CodeView>{"{recording_mode}"}</CodeView> → "Studio",
-									"Instant", or "Screenshot"
+									<CodeView>{"{recording_mode}"}</CodeView> →
+									“工作室”“即时”或“截图”
 								</p>
 								<p>
 									<CodeView>{"{mode}"}</CodeView> → "studio", "instant", or
@@ -1428,19 +1092,19 @@ function DefaultProjectNameCard(props: {
 							</div>
 
 							<div class="space-y-1">
-								<p class="font-medium text-gray-12">Target</p>
+								<p class="font-medium text-gray-12">目标</p>
 								<p>
 									<CodeView>{"{target_kind}"}</CodeView> → "Display", "Window",
 									or "Area"
 								</p>
 								<p>
-									<CodeView>{"{target_name}"}</CodeView> → Monitor name or
-									window title.
+									<CodeView>{"{target_name}"}</CodeView> →
+									显示器名称或窗口标题。
 								</p>
 							</div>
 
 							<div class="space-y-1">
-								<p class="font-medium text-gray-12">Date &amp; time</p>
+								<p class="font-medium text-gray-12">日期与时间</p>
 								<p>
 									<CodeView>{"{date}"}</CodeView> → {dateString}
 								</p>
@@ -1538,11 +1202,11 @@ function ExcludedWindowsCard(props: {
 
 	return (
 		<Section
-			title="Excluded windows"
+			title="排除窗口"
 			description={
 				props.isWindows
-					? "Hide windows from recordings. On Windows, only Cap-related windows can be excluded."
-					: "Hide windows from recordings."
+					? "在录制中隐藏指定窗口。Windows 仅支持排除 Cap 相关窗口。"
+					: "在录制中隐藏指定窗口。"
 			}
 			right={
 				<>
@@ -1552,7 +1216,7 @@ function ExcludedWindowsCard(props: {
 						disabled={props.isLoading}
 						onClick={handleResetClick}
 					>
-						Reset
+						重置
 					</Button>
 					<Button
 						variant="dark"
@@ -1562,7 +1226,7 @@ function ExcludedWindowsCard(props: {
 						class="flex gap-1.5 items-center"
 					>
 						<IconLucidePlus class="size-3.5" />
-						Add
+						添加
 					</Button>
 				</>
 			}
@@ -1574,11 +1238,11 @@ function ExcludedWindowsCard(props: {
 							<IconLucideAlertTriangle class="mt-0.5 size-4 shrink-0 text-amber-11" />
 							<div class="min-w-0 flex-1 space-y-1">
 								<p class="text-xs font-medium text-amber-11">
-									Recommended Cap windows are not excluded
+									尚未排除推荐的 Cap 窗口
 								</p>
 								<p class="text-[10px] leading-snug text-amber-11">
-									Camera, settings, or recording windows can appear as black
-									boxes in screen recordings. Missing: {missingDefaultLabels()}.
+									摄像头、设置或录制窗口可能在录屏中显示为黑色方框。尚未排除：{" "}
+									{missingDefaultLabels()}.
 								</p>
 							</div>
 							<Button
@@ -1588,7 +1252,7 @@ function ExcludedWindowsCard(props: {
 								onClick={handleResetClick}
 								class="shrink-0"
 							>
-								Restore
+								恢复
 							</Button>
 						</div>
 					</div>
@@ -1597,9 +1261,7 @@ function ExcludedWindowsCard(props: {
 					<Show
 						when={hasExclusions()}
 						fallback={
-							<p class="text-xs text-gray-10">
-								No windows are currently excluded.
-							</p>
+							<p class="text-xs text-gray-10">当前没有排除任何窗口。</p>
 						}
 					>
 						<div class="flex flex-wrap gap-2">
@@ -1620,7 +1282,7 @@ function ExcludedWindowsCard(props: {
 											type="button"
 											class="flex justify-center items-center rounded-full transition-colors size-5 text-gray-10 hover:bg-gray-5 hover:text-gray-12"
 											onClick={() => void props.onRemove(index())}
-											aria-label="Remove excluded window"
+											aria-label="移除排除窗口"
 										>
 											<IconLucideX class="size-3" />
 										</button>

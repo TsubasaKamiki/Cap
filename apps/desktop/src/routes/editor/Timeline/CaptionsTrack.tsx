@@ -145,7 +145,7 @@ export function CaptionsTrack(props: {
 				each={captionSegments()}
 				fallback={
 					<div class="text-center text-sm text-(--text-tertiary) flex flex-col gap-2 justify-center items-center inset-0 w-full bg-gray-3/20 dark:bg-gray-3/10 rounded-xl">
-						<div>No captions</div>
+						<div>暂无字幕</div>
 						<button
 							class="h-8 px-3 rounded-lg border border-green-7/50 bg-green-6/15 text-green-11 text-xs font-medium transition-colors hover:bg-green-6/25 disabled:opacity-50 disabled:cursor-not-allowed"
 							disabled={props.isGenerating}
@@ -155,7 +155,7 @@ export function CaptionsTrack(props: {
 								void props.onGenerate();
 							}}
 						>
-							{props.isGenerating ? "Generating..." : "Generate captions"}
+							{props.isGenerating ? "正在生成…" : "生成字幕"}
 						</button>
 					</div>
 				}
@@ -175,7 +175,7 @@ export function CaptionsTrack(props: {
 					const captionLabel = () => (
 						<div class="flex gap-1 justify-center items-center text-[10px] text-gray-1 dark:text-gray-12">
 							<span class="truncate max-w-full opacity-80">
-								{segment.text || "Caption"}
+								{segment.text || "字幕"}
 							</span>
 						</div>
 					);
@@ -190,7 +190,7 @@ export function CaptionsTrack(props: {
 								isSelected() ? "border-green-7" : "border-transparent",
 							)}
 							innerClass="ring-green-6"
-							title={segment.text || "Caption"}
+							title={segment.text || "字幕"}
 							segment={{
 								start: segment.start,
 								end: Math.min(segment.end, totalDuration()),

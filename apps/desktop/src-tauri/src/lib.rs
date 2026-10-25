@@ -1,5 +1,7 @@
 #![recursion_limit = "256"]
 
+pub(crate) const LOCAL_ONLY: bool = true;
+
 mod api;
 mod audio;
 mod audio_library;
@@ -588,23 +590,23 @@ fn build_macos_app_menu(app_handle: &AppHandle) -> tauri::Result<Menu<tauri::Wry
     let quit_label = config
         .product_name
         .as_ref()
-        .map(|name| format!("Quit {name}"))
-        .unwrap_or_else(|| "Quit Cap".to_string());
+        .map(|name| format!("退出 {name}"))
+        .unwrap_or_else(|| "退出 Cap".to_string());
 
     let window_menu = Submenu::with_id_and_items(
         app_handle,
         WINDOW_SUBMENU_ID,
-        "Window",
+        "窗口",
         true,
         &[
-            &PredefinedMenuItem::minimize(app_handle, None)?,
-            &PredefinedMenuItem::maximize(app_handle, None)?,
+            &PredefinedMenuItem::minimize(app_handle, Some("最小化"))?,
+            &PredefinedMenuItem::maximize(app_handle, Some("最大化"))?,
             &PredefinedMenuItem::separator(app_handle)?,
-            &PredefinedMenuItem::close_window(app_handle, None)?,
+            &PredefinedMenuItem::close_window(app_handle, Some("关闭窗口"))?,
         ],
     )?;
 
-    let help_menu = Submenu::with_id_and_items(app_handle, HELP_SUBMENU_ID, "Help", true, &[])?;
+    let help_menu = Submenu::with_id_and_items(app_handle, HELP_SUBMENU_ID, "帮助", true, &[])?;
 
     Menu::with_items(
         app_handle,
@@ -614,12 +616,16 @@ fn build_macos_app_menu(app_handle: &AppHandle) -> tauri::Result<Menu<tauri::Wry
                 pkg_info.name.clone(),
                 true,
                 &[
-                    &PredefinedMenuItem::about(app_handle, None, Some(about_metadata))?,
+                    &PredefinedMenuItem::about(
+                        app_handle,
+                        Some("关于 Cap 本地版"),
+                        Some(about_metadata),
+                    )?,
                     &PredefinedMenuItem::separator(app_handle)?,
-                    &PredefinedMenuItem::services(app_handle, None)?,
+                    &PredefinedMenuItem::services(app_handle, Some("服务"))?,
                     &PredefinedMenuItem::separator(app_handle)?,
-                    &PredefinedMenuItem::hide(app_handle, None)?,
-                    &PredefinedMenuItem::hide_others(app_handle, None)?,
+                    &PredefinedMenuItem::hide(app_handle, Some("隐藏 Cap"))?,
+                    &PredefinedMenuItem::hide_others(app_handle, Some("隐藏其他应用"))?,
                     &PredefinedMenuItem::separator(app_handle)?,
                     &MenuItem::with_id(
                         app_handle,
@@ -632,29 +638,35 @@ fn build_macos_app_menu(app_handle: &AppHandle) -> tauri::Result<Menu<tauri::Wry
             )?,
             &Submenu::with_items(
                 app_handle,
-                "File",
+                "文件",
                 true,
-                &[&PredefinedMenuItem::close_window(app_handle, None)?],
+                &[&PredefinedMenuItem::close_window(
+                    app_handle,
+                    Some("关闭窗口"),
+                )?],
             )?,
             &Submenu::with_items(
                 app_handle,
-                "Edit",
+                "编辑",
                 true,
                 &[
-                    &PredefinedMenuItem::undo(app_handle, None)?,
-                    &PredefinedMenuItem::redo(app_handle, None)?,
+                    &PredefinedMenuItem::undo(app_handle, Some("撤销"))?,
+                    &PredefinedMenuItem::redo(app_handle, Some("重做"))?,
                     &PredefinedMenuItem::separator(app_handle)?,
-                    &PredefinedMenuItem::cut(app_handle, None)?,
-                    &PredefinedMenuItem::copy(app_handle, None)?,
-                    &PredefinedMenuItem::paste(app_handle, None)?,
-                    &PredefinedMenuItem::select_all(app_handle, None)?,
+                    &PredefinedMenuItem::cut(app_handle, Some("剪切"))?,
+                    &PredefinedMenuItem::copy(app_handle, Some("复制"))?,
+                    &PredefinedMenuItem::paste(app_handle, Some("粘贴"))?,
+                    &PredefinedMenuItem::select_all(app_handle, Some("全选"))?,
                 ],
             )?,
             &Submenu::with_items(
                 app_handle,
-                "View",
+                "查看",
                 true,
-                &[&PredefinedMenuItem::fullscreen(app_handle, None)?],
+                &[&PredefinedMenuItem::fullscreen(
+                    app_handle,
+                    Some("切换全屏"),
+                )?],
             )?,
             &window_menu,
             &help_menu,
@@ -1328,11 +1340,11 @@ impl App {
 
         let (title, body) = match kind {
             RecordingInputKind::Microphone => (
-                "Microphone disconnected",
+                "麦克风已断开",
                 "Recording continues. Silence will be used until the microphone reconnects.",
             ),
             RecordingInputKind::Camera => (
-                "Camera disconnected",
+                "摄像头已断开",
                 "Recording continues without camera. Camera overlay will resume when the device reconnects.",
             ),
         };
@@ -4005,7 +4017,7 @@ async fn create_editor_instance(window: Window) -> Result<SerializedEditorInstan
         let window_ids = window_ids.ids.lock().unwrap();
 
         let Some((path, _)) = window_ids.iter().find(|(_, _id)| *_id == id) else {
-            return Err("Editor instance not found".to_string());
+            return Err("未找到编辑器实例".to_string());
         };
         path.clone()
     };
@@ -4043,7 +4055,7 @@ async fn get_editor_project_path(window: Window) -> Result<PathBuf, String> {
     let window_ids = window_ids.ids.lock().unwrap();
 
     let Some((path, _)) = window_ids.iter().find(|(_, _id)| *_id == id) else {
-        return Err("Editor instance not found".to_string());
+        return Err("未找到编辑器实例".to_string());
     };
 
     Ok(path.clone())
@@ -4738,10 +4750,10 @@ async fn save_file_dialog_inner(
         .to_string();
 
     let (name, extension) = match file_type.as_str() {
-        "recording" | "mp4" => ("MP4 Video", "mp4"),
+        "recording" | "mp4" => ("MP4 视频", "mp4"),
         "gif" => ("GIF Image", "gif"),
         "mov" => ("MOV Video", "mov"),
-        "screenshot" | "png" => ("PNG Image", "png"),
+        "screenshot" | "png" => ("PNG 图片", "png"),
         _ => {
             warn!(file_type, "Invalid save file dialog type");
             return Err("Invalid file type".to_string());
@@ -5120,7 +5132,7 @@ async fn reset_camera_permissions(_app: AppHandle) -> Result<(), String> {
 
         Command::new("tccutil")
             .arg("reset")
-            .arg("Camera")
+            .arg("摄像头")
             .arg(bundle_id)
             .output()
             .map_err(|_| "Failed to reset camera permissions".to_string())?;
@@ -5139,7 +5151,7 @@ async fn reset_microphone_permissions(_app: AppHandle) -> Result<(), String> {
 
         Command::new("tccutil")
             .arg("reset")
-            .arg("Microphone")
+            .arg("麦克风")
             .arg(bundle_id)
             .output()
             .map_err(|_| "Failed to reset microphone permissions".to_string())?;
@@ -7849,7 +7861,7 @@ impl<T: tauri_specta::Event> EventExt for T {}
 fn show_import_error_dialog(app: &AppHandle, message: String) {
     app.dialog()
         .message(message)
-        .title("Import Error")
+        .title("导入错误")
         .kind(tauri_plugin_dialog::MessageDialogKind::Error)
         .show(|_| {});
 }
@@ -7925,7 +7937,7 @@ fn open_project_from_path(path: &Path, app: AppHandle) -> Result<(), String> {
             if let StudioRecordingStatus::Failed { .. } = status {
                 return Err("Unable to open failed recording".to_string());
             } else if let StudioRecordingStatus::InProgress = status {
-                return Err("Recording in progress".to_string());
+                return Err("正在录制".to_string());
             }
 
             let project_path = path.to_path_buf();

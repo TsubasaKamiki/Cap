@@ -58,15 +58,15 @@ export const COLOR_PREVIEW_GRAIN = `url("data:image/svg+xml;utf8,<svg xmlns='htt
 export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	{
 		id: COLOR_PRESET_NONE,
-		label: "None",
-		description: "Original colors, no grade applied",
+		label: "无",
+		description: "原始颜色，未应用调色",
 		values: { ...IDENTITY_COLOR_VALUES },
 		preview: {},
 	},
 	{
 		id: "cinematic",
-		label: "Cinematic",
-		description: "Teal shadows and orange highlights with light grain",
+		label: "电影",
+		description: "青色阴影与橙色高光，配以轻微颗粒",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			contrast: 0.12,
@@ -84,8 +84,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "noir",
-		label: "Noir",
-		description: "High-contrast black and white with heavy grain",
+		label: "黑白电影",
+		description: "高对比度黑白与强烈颗粒",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			exposure: 0.04,
@@ -101,8 +101,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "vintage",
-		label: "Vintage",
-		description: "Faded warm film look with soft contrast",
+		label: "复古",
+		description: "褪色暖调胶片，柔和对比",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			contrast: -0.06,
@@ -119,8 +119,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "frost",
-		label: "Frost",
-		description: "Cool, crisp tones with muted color",
+		label: "霜冷",
+		description: "清冷通透，色彩柔和",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			contrast: 0.08,
@@ -137,8 +137,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "golden",
-		label: "Golden",
-		description: "Warm golden-hour glow",
+		label: "金色",
+		description: "温暖的黄金时刻光感",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			exposure: 0.06,
@@ -156,8 +156,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "midnight",
-		label: "Midnight",
-		description: "Dark, moody teal with subdued color",
+		label: "午夜",
+		description: "深沉青色氛围，色彩内敛",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			exposure: -0.08,
@@ -176,8 +176,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "vivid",
-		label: "Vivid",
-		description: "Punchy saturation and contrast boost",
+		label: "鲜艳",
+		description: "增强饱和度与对比度",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			exposure: 0.02,
@@ -190,8 +190,8 @@ export const COLOR_CORRECTION_PRESETS: ColorPresetDefinition[] = [
 	},
 	{
 		id: "dreamy",
-		label: "Dreamy",
-		description: "Soft, airy pastels with lifted blacks",
+		label: "梦幻",
+		description: "柔和通透的粉彩，提亮暗部",
 		values: {
 			...IDENTITY_COLOR_VALUES,
 			exposure: 0.08,

@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh_CN</string>
+	<key>CFBundleLocalizations</key>
+	<array><string>zh_CN</string></array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -12,7 +16,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>icon.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Cap Recording</string>
+			<string>Cap 录制</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -22,11 +26,11 @@
 		</dict>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Cap uses your camera to record you in your Caps</string>
+	<string>Cap 需要使用摄像头录制你的画面。</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Cap uses your microphone to record you in your Caps</string>
+	<string>Cap 需要使用麦克风录制你的声音。</string>
 	<key>NSScreenCaptureUsageDescription</key>
-	<string>Cap captures your screen as part of recording your Caps</string>
+	<string>Cap 需要录制屏幕以制作本地视频。</string>
 	<key>NSCameraUseContinuityCameraDeviceType</key>
 	<true/>
 </dict>

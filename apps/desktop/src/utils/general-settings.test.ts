@@ -11,6 +11,15 @@ import {
 } from "~/utils/general-settings";
 
 describe("general-settings", () => {
+	it("defaults to 4K while preserving an existing resolution preference", () => {
+		expect(deriveGeneralSettings(null).instantModeMaxResolution).toBe(3840);
+		expect(
+			deriveGeneralSettings({
+				enableNativeCameraPreview: false,
+				instantModeMaxResolution: 1920,
+			}).instantModeMaxResolution,
+		).toBe(1920);
+	});
 	it("normalizes transcription hints from text input", () => {
 		expect(
 			parseTranscriptionHints(" Cap \n\nTypeScript\nCap\nGitHub\n"),

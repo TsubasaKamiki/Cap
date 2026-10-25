@@ -221,7 +221,7 @@ impl ScreenshotEditorInstances {
             let pretty_name = recording_meta
                 .as_ref()
                 .map(|meta| meta.pretty_name.clone())
-                .unwrap_or_else(|| "Screenshot".to_string());
+                .unwrap_or_else(|| "截图".to_string());
             let (config_tx, _) = watch::channel(ScreenshotConfigUpdate {
                 revision: 0,
                 config: loaded_config.unwrap_or_default(),
@@ -270,7 +270,7 @@ impl ScreenshotEditorInstances {
             RecordingMeta {
                 platform: None,
                 project_path: path.parent().unwrap().to_path_buf(),
-                pretty_name: "Screenshot".to_string(),
+                pretty_name: "截图".to_string(),
                 sharing: None,
                 inner: RecordingMetaInner::Studio(Box::new(studio_meta.clone())),
                 upload: None,
@@ -1565,7 +1565,7 @@ pub async fn render_screenshot_png(instance: &ScreenshotEditorInstance) -> Resul
         RecordingMeta {
             platform: None,
             project_path: path.parent().unwrap_or(&path).to_path_buf(),
-            pretty_name: "Screenshot".to_string(),
+            pretty_name: "截图".to_string(),
             sharing: None,
             inner: RecordingMetaInner::Studio(Box::new(studio_meta)),
             upload: None,

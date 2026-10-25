@@ -402,7 +402,7 @@ function Inner(props: {
 	});
 
 	const appendRecordedClip = async (recordingPath: string) => {
-		const toastId = toast.loading("Adding clip…");
+		const toastId = toast.loading("正在添加片段…");
 		try {
 			if (editorState.playing) {
 				await commands.stopPlayback();
@@ -411,11 +411,11 @@ function Inner(props: {
 			await commands.setProjectConfig(serializeProjectConfiguration(project));
 			await commands.addExistingRecordingToEditor(recordingPath);
 			await commands.deleteRecordingDirectory(recordingPath).catch(() => {});
-			toast.success("Clip added", { id: toastId });
+			toast.success("片段已添加", { id: toastId });
 			window.location.reload();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
-			toast.error(`Failed to add clip: ${message}`, { id: toastId });
+			toast.error(`无法添加片段：${message}`, { id: toastId });
 		}
 	};
 
@@ -476,12 +476,12 @@ function Inner(props: {
 				}
 
 				const resumeExport = await ask(
-					"An export is currently running. Keep this editor open to continue it, or quit the editor and cancel the export.",
+					"正在导出。保持编辑器打开以继续导出，或退出编辑器并取消导出。",
 					{
-						title: "Export in Progress",
+						title: "正在导出",
 						kind: "warning",
-						okLabel: "Resume Export",
-						cancelLabel: "Quit Editor",
+						okLabel: "继续导出",
+						cancelLabel: "退出编辑器",
 					},
 				);
 
@@ -802,7 +802,7 @@ function Inner(props: {
 											"bg-gray-3/55 dark:bg-gray-4/50": isResizingTimeline(),
 										}}
 										onMouseDown={handleTimelineResizeStart}
-										aria-label="Resize timeline height"
+										aria-label="调整时间线高度"
 									>
 										<For each={TIMELINE_RESIZE_GRIP_MARKS}>
 											{() => (
@@ -844,7 +844,7 @@ function Inner(props: {
 									class="flex-none flex items-center justify-center cursor-col-resize select-none group z-10"
 									style={{ width: "12px" }}
 									onMouseDown={handleSplitResizeStart}
-									aria-label="Resize captions panel"
+									aria-label="调整字幕面板大小"
 									role="separator"
 									aria-orientation="vertical"
 								>
@@ -933,24 +933,24 @@ function Dialogs() {
 
 								return (
 									<DialogContent
-										title="Create Preset"
+										title="创建预设"
 										confirm={
 											<Dialog.ConfirmButton
 												disabled={createPreset.isPending}
 												onClick={() => createPreset.mutate()}
 											>
-												Create
+												创建
 											</Dialog.ConfirmButton>
 										}
 									>
-										<Subfield name="Name" required />
+										<Subfield name="名称" required />
 										<Input
 											class="mt-2"
 											value={form.name}
-											placeholder="Enter preset name..."
+											placeholder="输入预设名称…"
 											onInput={(e) => setForm("name", e.currentTarget.value)}
 										/>
-										<Subfield name="Set as default" class="mt-4">
+										<Subfield name="设为默认" class="mt-4">
 											<Toggle
 												checked={form.default}
 												onChange={(checked) => setForm("default", checked)}
@@ -981,17 +981,17 @@ function Dialogs() {
 
 								return (
 									<DialogContent
-										title="Rename Preset"
+										title="重命名预设"
 										confirm={
 											<Dialog.ConfirmButton
 												disabled={renamePreset.isPending}
 												onClick={() => renamePreset.mutate()}
 											>
-												Rename
+												重命名
 											</Dialog.ConfirmButton>
 										}
 									>
-										<Subfield name="Name" required />
+										<Subfield name="名称" required />
 										<Input
 											class="mt-2"
 											value={name()}
@@ -1020,20 +1020,18 @@ function Dialogs() {
 
 								return (
 									<DialogContent
-										title="Delete Preset"
+										title="删除预设"
 										confirm={
 											<Dialog.ConfirmButton
 												variant="destructive"
 												onClick={() => deletePreset.mutate()}
 												disabled={deletePreset.isPending}
 											>
-												Delete
+												删除
 											</Dialog.ConfirmButton>
 										}
 									>
-										<p class="text-gray-11">
-											Are you sure you want to delete this preset?
-										</p>
+										<p class="text-gray-11">确定要删除此预设吗？</p>
 									</DialogContent>
 								);
 							}}
@@ -1296,7 +1294,7 @@ function Dialogs() {
 										<Dialog.Header>
 											<div class="flex flex-row space-x-8">
 												<div class="flex flex-row items-center space-x-3 text-gray-11">
-													<span>Size</span>
+													<span>大小</span>
 													<div class="w-13">
 														<BoundInput field="width" max={display.width} />
 													</div>
@@ -1306,7 +1304,7 @@ function Dialogs() {
 													</div>
 												</div>
 												<div class="flex flex-row items-center space-x-3 text-gray-11">
-													<span>Position</span>
+													<span>位置</span>
 													<div class="w-13">
 														<BoundInput field="x" />
 													</div>
@@ -1356,7 +1354,7 @@ function Dialogs() {
 														crop().height === display.height
 													}
 												>
-													Full
+													完整
 												</EditorButton>
 												<EditorButton
 													leftIcon={<IconCapCircleX />}
@@ -1371,7 +1369,7 @@ function Dialogs() {
 														crop().height === dialog().size.y
 													}
 												>
-													Reset
+													重置
 												</EditorButton>
 											</div>
 										</Dialog.Header>
@@ -1379,7 +1377,7 @@ function Dialogs() {
 											<div class="flex flex-row gap-3 justify-center items-stretch">
 												<div class="flex flex-col gap-2.5">
 													<span class="px-1 text-[11px] font-medium tracking-wide uppercase text-gray-10">
-														Crop area
+														裁剪区域
 													</span>
 													<div
 														class="overflow-hidden relative rounded-xl border shadow-sm border-gray-3 bg-gray-3"
@@ -1411,7 +1409,7 @@ function Dialogs() {
 															>
 																<img
 																	class="block w-full h-full pointer-events-none select-none"
-																	alt="Current frame"
+																	alt="当前帧"
 																	onError={() => {
 																		const url = frameUrl();
 																		if (url) {
@@ -1455,7 +1453,7 @@ function Dialogs() {
 															<div class="flex absolute inset-0 z-40 flex-col gap-3 justify-center items-center bg-gray-3">
 																<div class="rounded-full border-2 animate-spin size-7 border-gray-5 border-t-blue-9" />
 																<span class="text-xs font-medium text-gray-10">
-																	Loading frame…
+																	正在加载画面…
 																</span>
 															</div>
 														</Show>
@@ -1482,7 +1480,7 @@ function Dialogs() {
 
 												<div class="flex flex-col gap-2.5">
 													<span class="px-1 text-[11px] font-medium tracking-wide uppercase text-gray-10">
-														Preview
+														预览
 													</span>
 													<div
 														class="flex overflow-hidden relative justify-center items-center rounded-xl border shadow-sm border-gray-3 bg-gray-3"
@@ -1499,7 +1497,7 @@ function Dialogs() {
 															<div class="flex absolute inset-0 z-40 flex-col gap-3 justify-center items-center bg-gray-3">
 																<div class="rounded-full border-2 animate-spin size-7 border-gray-5 border-t-blue-9" />
 																<span class="text-xs font-medium text-gray-10">
-																	Rendering preview…
+																	正在渲染预览…
 																</span>
 															</div>
 														</Show>
@@ -1524,7 +1522,7 @@ function Dialogs() {
 													setDialog((d) => ({ ...d, open: false }));
 												}}
 											>
-												Save
+												保存
 											</Button>
 										</Dialog.Footer>
 									</>

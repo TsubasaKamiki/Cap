@@ -69,6 +69,7 @@ async function main() {
 				path.join(repoRoot, "crates", "media-info"),
 				path.join(repoRoot, "crates", "project"),
 				path.join(repoRoot, "crates", "rendering"),
+				path.join(repoRoot, "crates", "recording"),
 				path.join(repoRoot, "Cargo.lock"),
 			],
 		},
